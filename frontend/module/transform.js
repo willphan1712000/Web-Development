@@ -143,4 +143,4 @@ function $$(ele1, ele2, ele3, ele4) {
     }
 }
 
-// export {$$}
+export {$$}
