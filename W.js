@@ -1,3 +1,6 @@
+// W.js is module created by Will - Thanh Nha Phan - Kennesaw State University
+// This module helps frontend development to be easily deployed
+
 function $$(ele1, ele2, ele3, ele4) {
     const p = arguments.length
     if(p === 1) {
