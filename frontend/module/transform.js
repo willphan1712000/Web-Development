@@ -1,3 +1,5 @@
+// Object TransformTouch requires you to have 3 elements. One is the targeted element, Two is the trash can, Three is the class that is triggered when the targeted element collides the trash can
+// If do not use trash can, leave the second and third element as undefined
 function TransformTouch(ele1, ele2, ele3) {
     this.ele1 = ele1
     this.ele2 = ele2
