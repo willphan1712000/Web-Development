@@ -1,3 +1,4 @@
+// This module requires you to use jQuery -> IMPORTANT
 // The Signup object requires you to have 6 elements that are shown as parameters below
 function Signup(username, email, password, error, submit) {
     this.username = username
