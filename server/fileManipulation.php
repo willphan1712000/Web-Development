@@ -7,7 +7,7 @@
         $files = array_diff(scandir($path), array('.', '..'));
 
         foreach($files as $file) {
-            $filePath = $folderPath.'/'.$file;
+            $filePath = $path.'/'.$file;
             if(is_dir($filePath)) {
                 deleteFolder($filePath);
             } else {
