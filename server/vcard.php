@@ -1,11 +1,10 @@
 <?php
-	include_once "image.php";
+	include_once "image.php"; // This is where you get the base64 encoded image
 	// Define vCard data
-	$firstName = 'John';
-	$lastName = 'Doe';
+	$name = 'Phan Thanh Nha';
 	$email = 'john.doe@example.com';
 	$phone = '+1234567890';
-	$facebookUrl = 'https://www.facebook.com/johndoe';
+	$facebook = 'https://www.facebook.com/johndoe';
 	// Build vCard content
 	$vCardContent = "BEGIN:VCARD
 	VERSION:3.0
@@ -13,11 +12,11 @@
 	URL:https://danhbaso.net/example/
 	NOTE;CHARSET=utf-8:🌺 Cuộc sống chỉ có thể được nhìn ngược về quá khứ; nhưng
 	nó phải được sống hướng về phía trước 💜
-	N;CHARSET=utf-8:Phan Thanh Nhã;;;;
-	FN;CHARSET=utf-8:Phan Thanh Nhã
-	TEL;PREF:0988866969
-	EMAIL;TYPE=Email:natalie.lynch@pencloud.com
-	URL;TYPE=Facebook:https://facebook.com/example
+	N;CHARSET=utf-8:$name;;;;
+	FN;CHARSET=utf-8:$name
+	TEL;PREF:$phone
+	EMAIL;TYPE=Email:$email
+	URL;TYPE=Facebook:$facebook
 	URL;TYPE=TikTok:https://tiktok.com/@tiktok
 	URL;TYPE=Facebook messenger:https://m.me/chatbot
 	URL;TYPE=Zalo:https://zalo.me/0999999999
