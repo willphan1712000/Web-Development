@@ -37,7 +37,7 @@
     $output = new Output($isDuplicated, $isEmailValid, $isLengthValid,  $hasUpperCase, $hasDigit, $hasSpecialChar);
 
     if(isset($_POST['username']) || isset($_POST['email']) || isset($_POST['password'])) {
-        $username = $_POST['username'];
+        $username = str_replace(' ', '', $_POST['username']);
         $email = $_POST['email'];
         $password = $_POST['password'];
         // Check if the username is duplicated
