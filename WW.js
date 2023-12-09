@@ -95,7 +95,7 @@ function Signup(username, email, password, error, submit) {
                             method: "POST",
                             dataType: "json",
                             data: {
-                                username: $usernameInput.val(),
+                                username: thisObject.removeSpace($usernameInput.val()),
                                 email: $emailInput.val(),
                                 password: $passwordInput.val()
                             },
@@ -114,7 +114,7 @@ function Signup(username, email, password, error, submit) {
                                         } else {
                                             thisObject.signUpSuccess(".signupChild", "inactive", ".signupSuccess", "active")
                                             // Optional operation
-                                            thisObject.runPHPTask($usernameInput.val())
+                                            thisObject.createFiles(thisObject.removeSpace($usernameInput.val()))
                                         }
                                     }
                                 }   
@@ -166,6 +166,18 @@ function Signup(username, email, password, error, submit) {
         if(isValidLength && isValid) return isValid
     }
 
+    this.removeSpace = function(text) {
+        let filtered = '';
+        for(let i = 0; i < text.length; i++) {
+            if(text[i] === ' ') {
+                continue
+            } else {
+                filtered += text[i]
+            }
+        }
+        return filtered;
+    }
+
     this.shakingErrorMsg = function(error) {
         var requestAnimationFrame = window.requestAnimationFrame || window.mozrequestAnimationFrame || window.webkitrequestAnimationFrame || window.msrequestAnimationFrame;
 
@@ -194,14 +206,16 @@ function Signup(username, email, password, error, submit) {
     }
     
     // Gray out this function when not in use in other projects
-    this.runPHPTask = function(username) {
+    this.createFiles = function(username) {
+        let data = {}
+        data.type = 'create'
+        data.username = username
         $.ajax({
-            url: "/data/task.php",
+            url: "/data/update.php",
             method: "POST",
             dataType: "html",
-            data: {
-                username: username
-            },
+            contentType: "application/json",
+            data: JSON.stringify(data),
             success: function(e) {
                 
             }
