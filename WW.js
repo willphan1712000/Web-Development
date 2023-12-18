@@ -32,12 +32,17 @@ function WW2(ele1, ele2) {
     const thisObject = this
 
     
+    
 }
 function WW3(ele1, ele2, ele3) {
     this.ele1 = ele1
     this.ele2 = ele2
     this.ele3 = ele3
     const thisObject = this
+
+    this.table = function() {
+        return new Table(this.ele1, this.ele2, this.ele3)
+    }
 
 }
 function WW4(ele1, ele2, ele3, ele4) {
@@ -58,6 +63,113 @@ function WW5(ele1, ele2, ele3, ele4, ele5) {
 
     this.signup = function() {
         return new Signup(this.ele1, this.ele2, this.ele3, this.ele4, this.ele5)
+    }
+
+    this.formValidate = function() {
+        return new FormValidate(this.ele1, this.ele2, this.ele3, this.ele4, this.ele5)
+    }
+}
+
+function FormValidate(input, msg, success, error, regex) {
+    this.input = input
+    this.msg = msg
+    this.success = success
+    this.error = error
+    this.regex = regex
+    this.isValid = true
+    const thisObject = this
+
+    this.setValidity = function(value) {
+        this.isValid = value
+    }
+
+    this.getValidity = function() {
+        return this.isValid
+    }
+
+
+    this.phoneFormat = function() {
+        $(this.input).on("input", function(event) {
+            let inputValue = event.target.value.replace(/\D/g, '');
+            let formattedValue = '';
+
+            // Apply the formatting
+            for (let i = 0; i < inputValue.length; i++) {
+                if (i === 3 || i === 6) {
+                    formattedValue += '-';
+                }
+                formattedValue += inputValue[i];
+            }
+
+            // Update the input value
+            event.target.value = formattedValue;
+        })
+    }
+
+    this.run = function() {
+        const regex = this.regex
+        $(this.input).on("input", function(e) {
+            if(e.target.value !== '') {
+                if(regex.test(e.target.value)) {
+                    thisObject.setValidity(true)
+                    $(thisObject.msg).html(thisObject.success)
+                } else {
+                    thisObject.setValidity(false)
+                    $(thisObject.msg).html(thisObject.error)
+                }
+            } else {
+                $(thisObject.msg).html('')
+                thisObject.setValidity(true)
+            }
+        })
+        return this
+    }
+}
+
+function Table(location, header, data) {
+    // Follow the object format
+    // header = {
+    //     1: a,
+    //     2: b,
+    //     3: c
+    // }
+    // data = {
+    //     1: {
+    //         1: data1,
+    //         2: data2
+    //     },
+    //     2: {
+    //         1: data3,
+    //         2: data4
+    //     }
+    // }
+    // The table should look like this
+    // a b     c
+    // 1 data1 data2
+    // 2 data3 data4
+    this.location = location
+    this.header = header
+    this.data = data
+    const thisObject = this
+
+    this.create = function() {
+        $(this.location).append('<table><tr></tr></table>')
+        for(const headerKey in this.header) {
+            if(this.header.hasOwnProperty(headerKey)) {
+                $(this.location + " table tr").append(`<th>${this.header[headerKey]}</th>`)
+            }
+        }
+        let counter = 0
+        for(const dataKey in this.data) {
+            counter++
+            let row = `<tr><th>${counter}</th>`, eachData = this.data[dataKey]
+            for(const eachKey in eachData) {
+                row += `<th>${eachData[eachKey]}</th>`
+            }
+            row += `</tr>`
+            $(this.location + " table").append(row)
+        }
+        return this
     }
 }
 
@@ -109,7 +221,7 @@ function Signup(username, email, password, error, submit) {
                                         thisObject.shakingErrorMsg($error)
                                     } else {
                                         if(!(e[2] && e[3] && e[4] && e[5])) {
-                                            $error.html("Be careful, someone is attacking us, try again!")
+                                            $error.html("There is an error, try again!")
                                             thisObject.shakingErrorMsg($error)
                                         } else {
                                             thisObject.signUpSuccess(".signupChild", "inactive", ".signupSuccess", "active")
@@ -143,7 +255,7 @@ function Signup(username, email, password, error, submit) {
     }
 
     this.isValidPassword = function(password) {
-        let position, isValidLength = false, hasUpperCase = false, hasDigit = false, hasSpecialChar = false, isValid = false
+        let position, isValidLength = false, hasUpperCase = false, hasDigit = false, hasSpecialChar = true, isValid = false // Bypass special character requirement
         if(password.length >= 12) {
             isValidLength = true
         }
@@ -222,5 +334,6 @@ function Signup(username, email, password, error, submit) {
         })
     }
 }
+
 
 export {$$$}
