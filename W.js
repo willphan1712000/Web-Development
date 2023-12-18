@@ -20,18 +20,29 @@ function $$(ele1, ele2, ele3, ele4) {
 function W1(ele1) {
     this.ele1 = ele1
     const thisObject = this
-
     this.passShowHide = function() {
-        return new PassShowHide(thisObject.ele1)
+        return new PassShowHide(this.ele1)
+    }
+    this.transform = function() {
+        return new Transform(this.ele1, undefined, undefined)
+    }
+    this.addSpinner = function() {
+        return new Spinner(this.ele1)
+    }
+    this.format = function() {
+        return new Format(this.ele1)
     }
 }
+
 function W2(ele1, ele2) {
     this.ele1 = ele1
     this.ele2 = ele2
     const thisObject = this
-
     this.toggle = function() {
-        return new Toggle(thisObject.ele1, thisObject.ele2)
+        return new Toggle(this.ele1, this.ele2)
+    }
+    this.upload = function() {
+        return new Upload(this.ele1, this.ele2)
     }
 }
 function W3(ele1, ele2, ele3) {
@@ -39,9 +50,71 @@ function W3(ele1, ele2, ele3) {
     this.ele2 = ele2
     this.ele3 = ele3
     const thisObject = this
-
     this.transform = function() {
         return new Transform(thisObject.ele1, thisObject.ele2, thisObject.ele3)
+    }
+}
+function W4(ele1, ele2, ele3, ele4) {
+    this.ele1 = ele1
+    this.ele2 = ele2
+    this.ele3 = ele3
+    this.ele4 = ele4
+    const thisObject = this
+    this.copyToClipboard = function() {
+        return new CopyToClipboard(this.ele1, this.ele2, this.ele3, this.ele4)
+    }
+}
+
+function Spinner(ele1) {
+    this.ele1 = ele1 // Element that the spinner will be added to
+    const thisObject = this
+    this.show = function() {
+        $(this.ele1 + " .loader").addClass("spinner")
+        return this
+    }
+    this.hide = function() {
+        $(this.ele1 + " .loader").removeClass("spinner")
+        return this
+    }
+    this.singleSpinner = function() {
+        let styleElement = document.createElement("style")
+        styleElement.textContent = `
+        .spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+        }
+        .spinner::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            border: 4px solid transparent;
+            border-top-color: #000;
+            border-radius: 50%;
+            animation: spinner 1s linear infinite;
+        }
+        @keyframes spinner {
+            from {
+                transform: rotate(0turn);
+            }
+            to {
+                transform: rotate(1turn);
+            }
+        }`
+        document.head.appendChild(styleElement)
+        $(this.ele1).append(`<div class="loader"></div>`)
+        $(this.ele1).css("position", "relative")
+        return this
+    }
+    this.gradientSpinner = function() {
+        $(this.ele1).append(`<div class="loader spinner"></div>`)
+        return this
     }
 }
 
@@ -54,7 +127,7 @@ function PassShowHide(input) {
         $input.after('<div style="position: relative;"></div>')
         $(input + " + div").append($input.html(self))
         $input.after(`<i class="fa-solid fa-eye eye" style="position: absolute;left: ${inputWidth - (18+3)}px; top: ${(inputHeight-16)/2}px; cursor: pointer; color: #333;"></i>`)
-        const $eye = $(".eye")
+        const $eye = $(this.input).next()
         $eye.click(function() {
             if($input.attr('type') === "password") {
                 $input.attr('type', 'text')
@@ -68,18 +141,72 @@ function PassShowHide(input) {
                 })
             }
         })
+        return this
+    }
+}
+
+function Upload(ele1, ele2) {
+    this.ele1 = ele1
+    this.ele2 = ele2
+    const $ele1 = $(this.ele1)
+    const $ele2 = $(this.ele2)
+    const thisObject = this
+
+    this.openFile = function() {
+        $ele1.click(e => {
+            e.stopPropagation()
+            $ele2.click()
+        })
+        return this
+    }
+
+    this.fileHandling = function(e, cb) {
+        const {target} = e
+        const file = target.files[0]
+        if(file) {
+            const reader = new FileReader()
+            reader.readAsDataURL(file)
+            reader.onload = function(readerEvent) {
+                const imgElement = document.createElement("img")
+                imgElement.src = readerEvent.target.result
+                imgElement.onload = function(imgEvent) {
+                    cb(imgEvent.target.src)
+                }
+            }
+        }
+    }
+    
+    this.drawImage = function(e, x, y, scale, angle, canvasWidth, canvasHeight, containerWidth, containerHeight) {
+        const canvas = document.createElement("canvas")
+        canvas.width = canvasWidth
+        canvas.height = canvasHeight
+        const ctx = canvas.getContext("2d")
+        const ratioX = canvasWidth/containerWidth
+        const ratioY = canvasHeight/containerHeight
+        let finalX = x*ratioX
+        let finalY = y*ratioY
+        let midleWidth = e.width*ratioX
+        let midleHeight = e.height*ratioY
+        let finalWidth = e.width*ratioX*scale
+        let finalHeight = e.height*ratioY*scale
+        ctx.translate(finalX + midleWidth/2, finalY + midleHeight/2)
+        ctx.rotate((angle*Math.PI)/180)
+        ctx.drawImage(e, -finalWidth/2, -finalHeight/2, finalWidth, finalHeight);
+        const srcEncoded = ctx.canvas.toDataURL(e).split(",")[1];
+        return srcEncoded
     }
 }
 
 function Toggle(ele1, ele2) {
-    this.ele1 = ele1
-    this.ele2 = ele2
+    this.ele1 = ele1 // Targeted element
+    this.ele2 = ele2 // Class name to be toggled
     const thisObject = this
 
     this.run = function() {
         $(this.ele1).click(function(e) {
             $(e.currentTarget).toggleClass(thisObject.ele2)
         })
+        return this
     }
 }
 
@@ -94,6 +221,7 @@ function Transform(ele1, ele2, ele3) {
     this.angle = 0
     const $ele1 = $(this.ele1)
     const $ele2 = $(this.ele2)
+    const thisObject = this
     
     this.setValue = function(x, y, scale, angle) {
         this.x = (x !== undefined) ? x : this.x
@@ -119,8 +247,8 @@ function Transform(ele1, ele2, ele3) {
         this.collided = is
     }
 
-    const thisObject = this
     this.draggable = function() {
+        let iPosX, iPosY, posX, posY, dX, dY
         $ele1.on("touchstart", function(e) {
             e.preventDefault()
             e.stopPropagation()
@@ -149,6 +277,7 @@ function Transform(ele1, ele2, ele3) {
         $ele1.on("touchstart", function(e) {
             e.preventDefault()
             e.stopPropagation()
+            let finger1X, finger1Y, finger2X, finger2Y, iVectorX, iVectorY, vectorX, vectorY, initialAngle, currentAngle, dScale
             if(e.touches.length === 2) {
                 finger1X = e.touches[0].clientX
                 finger1Y = e.touches[0].clientY
@@ -217,7 +346,32 @@ function Transform(ele1, ele2, ele3) {
                 $(document).off("touchend", null)
             })
         })
+
         return this
+    }
+    this.terminate = function() {
+        $ele1.off("touchstart", null)
+        $(document).off("touchmove", null)
+        $(document).off("touchend", null)
+        return this
+    }
+}
+
+function CopyToClipboard(ele1, ele2, ele3, ele4) {
+    this.ele1 = ele1 // text
+    this.ele2 = ele2 // button
+    this.ele3 = ele3 // indicator after click button
+    this.ele4 = ele4 // class after click button
+    const thisObject = this
+
+    this.run = function() {
+        $(this.ele2).click(() => {
+            navigator.clipboard.writeText(thisObject.ele1)
+            $(thisObject.ele3).addClass(thisObject.ele4)
+            setTimeout(()=>{
+                $(thisObject.ele3).removeClass(thisObject.ele4)
+            }, 1000)
+        })
     }
 }
 
