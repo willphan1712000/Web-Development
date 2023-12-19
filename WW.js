@@ -40,10 +40,6 @@ function WW3(ele1, ele2, ele3) {
     this.ele3 = ele3
     const thisObject = this
 
-    this.table = function() {
-        return new Table(this.ele1, this.ele2, this.ele3)
-    }
-
 }
 function WW4(ele1, ele2, ele3, ele4) {
     this.ele1 = ele1
@@ -122,53 +118,6 @@ function FormValidate(input, msg, success, error, regex) {
                 thisObject.setValidity(true)
             }
         })
-        return this
-    }
-}
-
-function Table(location, header, data) {
-    // Follow the object format
-    // header = {
-    //     1: a,
-    //     2: b,
-    //     3: c
-    // }
-    // data = {
-    //     1: {
-    //         1: data1,
-    //         2: data2
-    //     },
-    //     2: {
-    //         1: data3,
-    //         2: data4
-    //     }
-    // }
-    // The table should look like this
-    // a b     c
-    // 1 data1 data2
-    // 2 data3 data4
-    this.location = location
-    this.header = header
-    this.data = data
-    const thisObject = this
-
-    this.create = function() {
-        $(this.location).append('<table><tr></tr></table>')
-        for(const headerKey in this.header) {
-            if(this.header.hasOwnProperty(headerKey)) {
-                $(this.location + " table tr").append(`<th>${this.header[headerKey]}</th>`)
-            }
-        }
-        let counter = 0
-        for(const dataKey in this.data) {
-            counter++
-            let row = `<tr><th>${counter}</th>`, eachData = this.data[dataKey]
-            for(const eachKey in eachData) {
-                row += `<th>${eachData[eachKey]}</th>`
-            }
-            row += `</tr>`
-            $(this.location + " table").append(row)
-        }
         return this
     }
 }
