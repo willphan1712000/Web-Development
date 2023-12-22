@@ -196,7 +196,7 @@ function PassShowHide(input) {
     }
 }
 
-function Upload(ele1, ele2) {
+function ImageProcess(ele1, ele2) {
     this.ele1 = ele1
     this.ele2 = ele2
     const $ele1 = $(this.ele1)
@@ -226,25 +226,32 @@ function Upload(ele1, ele2) {
             }
         }
     }
-    
-    this.drawImage = function(e, x, y, scale, angle, canvasWidth, canvasHeight, containerWidth, containerHeight) {
+
+    this.createCanvas = function(width, height) {
         const canvas = document.createElement("canvas")
-        canvas.width = canvasWidth
-        canvas.height = canvasHeight
         const ctx = canvas.getContext("2d")
-        const ratioX = canvasWidth/containerWidth
-        const ratioY = canvasHeight/containerHeight
+        canvas.width = width
+        canvas.height = height
+        return [canvas, ctx]
+    }
+    
+    this.drawImage = function(e, ctx, x, y, scale, angle, canvas, containerWidth, containerHeight) {
+        const ratioX = canvas.width/containerWidth
+        const ratioY = canvas.height/containerHeight
         let finalX = x*ratioX
         let finalY = y*ratioY
         let midleWidth = e.width*ratioX
         let midleHeight = e.height*ratioY
         let finalWidth = e.width*ratioX*scale
         let finalHeight = e.height*ratioY*scale
+
+        ctx.save()
         ctx.translate(finalX + midleWidth/2, finalY + midleHeight/2)
         ctx.rotate((angle*Math.PI)/180)
         ctx.drawImage(e, -finalWidth/2, -finalHeight/2, finalWidth, finalHeight);
-        const srcEncoded = ctx.canvas.toDataURL(e).split(",")[1];
-        return srcEncoded
+        ctx.restore()
+        const srcEncoded = ctx.canvas.toDataURL(e).split(",")[1]
+        return [ctx, srcEncoded]
     }
 }
 
