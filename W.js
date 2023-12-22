@@ -41,8 +41,8 @@ function W2(ele1, ele2) {
     this.toggle = function() {
         return new Toggle(this.ele1, this.ele2)
     }
-    this.upload = function() {
-        return new Upload(this.ele1, this.ele2)
+    this.imageProcess = function() {
+        return new ImageProcess(this.ele1, this.ele2)
     }
 }
 function W3(ele1, ele2, ele3) {
