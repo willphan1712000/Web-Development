@@ -41,8 +41,11 @@ function W2(ele1, ele2) {
     this.toggle = function() {
         return new Toggle(this.ele1, this.ele2)
     }
-    this.imageProcess = function() {
-        return new ImageProcess(this.ele1, this.ele2)
+    this.upload = function() {
+        return new Upload(this.ele1, this.ele2)
+    }
+    this.copyToClipboard = function() {
+        return new CopyToClipboard(this.ele1, this.ele2)
     }
 }
 function W3(ele1, ele2, ele3) {
@@ -64,9 +67,6 @@ function W4(ele1, ele2, ele3, ele4) {
     this.ele3 = ele3
     this.ele4 = ele4
     const thisObject = this
-    this.copyToClipboard = function() {
-        return new CopyToClipboard(this.ele1, this.ele2, this.ele3, this.ele4)
-    }
 }
 
 function Table(location, header, data) {
@@ -196,7 +196,7 @@ function PassShowHide(input) {
     }
 }
 
-function ImageProcess(ele1, ele2) {
+function Upload(ele1, ele2) {
     this.ele1 = ele1
     this.ele2 = ele2
     const $ele1 = $(this.ele1)
@@ -226,32 +226,25 @@ function ImageProcess(ele1, ele2) {
             }
         }
     }
-
-    this.createCanvas = function(width, height) {
-        const canvas = document.createElement("canvas")
-        const ctx = canvas.getContext("2d")
-        canvas.width = width
-        canvas.height = height
-        return [canvas, ctx]
-    }
     
-    this.drawImage = function(e, ctx, x, y, scale, angle, canvas, containerWidth, containerHeight) {
-        const ratioX = canvas.width/containerWidth
-        const ratioY = canvas.height/containerHeight
+    this.drawImage = function(e, x, y, scale, angle, canvasWidth, canvasHeight, containerWidth, containerHeight) {
+        const canvas = document.createElement("canvas")
+        canvas.width = canvasWidth
+        canvas.height = canvasHeight
+        const ctx = canvas.getContext("2d")
+        const ratioX = canvasWidth/containerWidth
+        const ratioY = canvasHeight/containerHeight
         let finalX = x*ratioX
         let finalY = y*ratioY
         let midleWidth = e.width*ratioX
         let midleHeight = e.height*ratioY
         let finalWidth = e.width*ratioX*scale
         let finalHeight = e.height*ratioY*scale
-
-        ctx.save()
         ctx.translate(finalX + midleWidth/2, finalY + midleHeight/2)
         ctx.rotate((angle*Math.PI)/180)
         ctx.drawImage(e, -finalWidth/2, -finalHeight/2, finalWidth, finalHeight);
-        ctx.restore()
-        const srcEncoded = ctx.canvas.toDataURL(e).split(",")[1]
-        return [ctx, srcEncoded]
+        const srcEncoded = ctx.canvas.toDataURL(e).split(",")[1];
+        return srcEncoded
     }
 }
 
@@ -268,16 +261,18 @@ function Toggle(ele1, ele2) {
     }
 }
 
-function TransformTouch(ele1, ele2) {
+function Transform(ele1, ele2, ele3) {
     this.ele1 = ele1
     this.ele2 = ele2
+    this.signal = ele3
     this.collided = false
     this.x = 0
     this.y = 0
     this.scale = 1
     this.angle = 0
-    $ele1 = $(this.ele1)
-    $ele2 = $(this.ele2)
+    const $ele1 = $(this.ele1)
+    const $ele2 = $(this.ele2)
+    const thisObject = this
     
     this.setValue = function(x, y, scale, angle) {
         this.x = (x !== undefined) ? x : this.x
@@ -285,8 +280,8 @@ function TransformTouch(ele1, ele2) {
         this.scale = (scale !== undefined) ? scale : this.scale
         this.angle = (scale !== undefined) ? angle : this.angle
     }
-    this.performTransform = function($ele, x, y, scale, angle) {
-        $ele.css({
+    this.performTransform = function(x, y, scale, angle) {
+        $ele1.css({
             transform: `translate(${x}px, ${y}px) scale(${scale}) rotate(${angle}deg)`
         })
     }
@@ -303,30 +298,28 @@ function TransformTouch(ele1, ele2) {
         this.collided = is
     }
 
-    const thisObject = this
     this.draggable = function() {
+        let iPosX, iPosY, posX, posY, dX, dY
         $ele1.on("touchstart", function(e) {
-            e.preventDefault() // Prevent the page from scrolling
-            e.stopPropagation() // Prevent the finger from touching another element that is overlapped by the targeted element
-            if(e.targetTouches.length >= 1) {
-                iPosX = e.targetTouches[0].clientX
-                iPosY = e.targetTouches[0].clientY
-                let [posX, posY, scale, angle] = thisObject.exportData()
-                $(this).on("touchmove", function(e) {
-                    dX = e.targetTouches[0].clientX - iPosX
-                    dY = e.targetTouches[0].clientY - iPosY
-                    iPosX = e.targetTouches[0].clientX
-                    iPosY = e.targetTouches[0].clientY
-                    posX += dX
-                    posY += dY
-                    thisObject.performTransform($(this), posX, posY, scale, angle)
-                })
-                $(this).on("touchend", function() {
-                    $(this).off("touchmove", null)
-                    $(this).off("touchend", null)
-                    thisObject.setValue(posX, posY, undefined, undefined)
-                })
-            }
+            e.preventDefault()
+            e.stopPropagation()
+            iPosX = e.touches[0].clientX
+            iPosY = e.touches[0].clientY
+            let [posX, posY, scale, angle] = thisObject.exportData()
+            $ele1.on("touchmove", function(e) {
+                dX = e.touches[0].clientX - iPosX
+                dY = e.touches[0].clientY - iPosY
+                iPosX = e.touches[0].clientX
+                iPosY = e.touches[0].clientY
+                posX += dX
+                posY += dY
+                thisObject.performTransform(posX, posY, scale, angle)
+            })
+            $ele1.on("touchend", function() {
+                $ele1.off("touchmove", null)
+                $ele1.off("touchend", null)
+                thisObject.setValue(posX, posY, undefined, undefined)
+            })
         })
         return this
     }
@@ -335,75 +328,42 @@ function TransformTouch(ele1, ele2) {
         $ele1.on("touchstart", function(e) {
             e.preventDefault()
             e.stopPropagation()
-            if(e.targetTouches.length === 2) {
-                finger1X = e.targetTouches[0].clientX
-                finger1Y = e.targetTouches[0].clientY
-                finger2X = e.targetTouches[1].clientX
-                finger2Y = e.targetTouches[1].clientY
+            let finger1X, finger1Y, finger2X, finger2Y, iVectorX, iVectorY, vectorX, vectorY, initialAngle, currentAngle, dScale
+            if(e.touches.length === 2) {
+                finger1X = e.touches[0].clientX
+                finger1Y = e.touches[0].clientY
+                finger2X = e.touches[1].clientX
+                finger2Y = e.touches[1].clientY
                 iVectorX = finger2X - finger1X
                 iVectorY = finger2Y - finger1Y
                 initialAngle = Math.atan2(iVectorX, iVectorY)
                 let [posX, posY, scale, angle] = thisObject.exportData()
-                $(this).on("touchmove", function(e) {
-                    finger1X = e.targetTouches[0].clientX
-                    finger1Y = e.targetTouches[0].clientY
-                    finger2X = e.targetTouches[1].clientX
-                    finger2Y = e.targetTouches[1].clientY
+                $ele1.on("touchmove", function(e) {
+                    finger1X = e.touches[0].clientX
+                    finger1Y = e.touches[0].clientY
+                    finger2X = e.touches[1].clientX
+                    finger2Y = e.touches[1].clientY
                     vectorX = finger2X - finger1X
                     vectorY = finger2Y - finger1Y
                     currentAngle = Math.atan2(vectorX, vectorY)
                     angle -= (currentAngle - initialAngle)*180/Math.PI
                     dScale = Math.sqrt(vectorX*vectorX + vectorY*vectorY)/Math.sqrt(iVectorX*iVectorX + iVectorY*iVectorY)
                     scale *= dScale
-                    thisObject.performTransform($(this), posX, posY, scale, angle)
+                    thisObject.performTransform(posX, posY, scale, angle)
                     iVectorX = vectorX
                     iVectorY = vectorY
                     initialAngle = currentAngle
                 })
-                $(this).on("touchend", function() {
-                    $(this).off("touchmove", null)
-                    $(this).off("touchend", null)
+                $ele1.on("touchend", function() {
+                    $ele1.off("touchmove", null)
+                    $ele1.off("touchend", null)
                     thisObject.setValue(undefined, undefined, scale, angle)
                 })
             }
         })
         return this
     }
-
-    this.collide = function(touchedCb, notTouchedCb, touchEndCb) {
-        let ele2X = $ele2.offset().left + $ele2.width()/2
-        let ele2Y = $ele2.offset().top + $ele2.height()/2
-        let radius = $ele2.width()/2
-        $ele1.on("touchstart", function(e) {
-            e.preventDefault()
-            e.stopPropagation()
-            $(this).on("touchmove", function(e) {
-                let fingerX = e.targetTouches[0].clientX
-                let fingerY = e.targetTouches[0].clientY
-                let distanceX = fingerX - ele2X
-                let distanceY = fingerY - ele2Y
-                distance = Math.sqrt(distanceX*distanceX + distanceY*distanceY)
-                if(distance <= radius) {
-                    thisObject.setIsCollided(true)
-                    touchedCb()
-                } else {
-                    thisObject.setIsCollided(false)
-                    notTouchedCb()
-                }
-            })
-            $(this).on("touchend", function() {
-                if(thisObject.isCollided()) {
-                    thisObject.setValue(0, 0, 1, 0)
-                    let [x, y, scale, angle] = thisObject.exportData()
-                    thisObject.performTransform($(this), x, y, scale, angle)
-                    touchEndCb()
-                }
-                $(this).off("touchmove", null)
-                $(this).off("touchend", null)
-            })
-        })
-        return this
-    }
+    
     this.terminate = function() {
         $ele1.off("touchstart", null)
         $(document).off("touchmove", null)
@@ -412,20 +372,15 @@ function TransformTouch(ele1, ele2) {
     }
 }
 
-function CopyToClipboard(ele1, ele2, ele3, ele4) {
+function CopyToClipboard(ele1, ele2) {
     this.ele1 = ele1 // text
     this.ele2 = ele2 // button
-    this.ele3 = ele3 // indicator after click button
-    this.ele4 = ele4 // class after click button
     const thisObject = this
 
-    this.run = function() {
+    this.run = function(cb) {
         $(this.ele2).click(() => {
             navigator.clipboard.writeText(thisObject.ele1)
-            $(thisObject.ele3).addClass(thisObject.ele4)
-            setTimeout(()=>{
-                $(thisObject.ele3).removeClass(thisObject.ele4)
-            }, 1000)
+            cb()
         })
     }
 }
