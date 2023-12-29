@@ -77,9 +77,4 @@ function circularLinkList() {
     }
 
 
-}
 
-const linkedList = new circularLinkList()
-linkedList.add("Will")
-linkedList.add("Patrick")
-console.log(linkedList.length())
