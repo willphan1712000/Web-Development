@@ -261,10 +261,9 @@ function Toggle(ele1, ele2) {
     }
 }
 
-function Transform(ele1, ele2, ele3) {
+function Transform(ele1, ele2) {
     this.ele1 = ele1
     this.ele2 = ele2
-    this.signal = ele3
     this.collided = false
     this.x = 0
     this.y = 0
@@ -363,7 +362,41 @@ function Transform(ele1, ele2, ele3) {
         })
         return this
     }
-    
+
+    this.collide = function(touchedCb, notTouchedCb, touchEndCb) {
+        let ele2X = $ele2.offset().left + $ele2.width()/2
+        let ele2Y = $ele2.offset().top + $ele2.height()/2
+        let radius = $ele2.width()/2
+        $ele1.on("touchstart", function(e) {
+            e.preventDefault()
+            e.stopPropagation()
+            $(this).on("touchmove", function(e) {
+                let fingerX = e.targetTouches[0].clientX
+                let fingerY = e.targetTouches[0].clientY
+                let distanceX = fingerX - ele2X
+                let distanceY = fingerY - ele2Y
+                let distance = Math.sqrt(distanceX*distanceX + distanceY*distanceY)
+                if(distance <= radius) {
+                    thisObject.setIsCollided(true)
+                    touchedCb()
+                } else {
+                    thisObject.setIsCollided(false)
+                    notTouchedCb()
+                }
+            })
+            $(this).on("touchend", function() {
+                if(thisObject.isCollided()) {
+                    thisObject.setValue(0, 0, 1, 0)
+                    let [x, y, scale, angle] = thisObject.exportData()
+                    thisObject.performTransform($(this), x, y, scale, angle)
+                    touchEndCb()
+                }
+                $(this).off("touchmove", null)
+                $(this).off("touchend", null)
+            })
+        })
+        return this
+    }
     this.terminate = function() {
         $ele1.off("touchstart", null)
         $(document).off("touchmove", null)
