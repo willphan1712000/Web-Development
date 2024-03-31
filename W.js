@@ -60,6 +60,10 @@ function W3(ele1, ele2, ele3) {
     this.table = function() {
         return new Table(this.ele1, this.ele2, this.ele3)
     }
+
+    this.transformDesktop = function() {
+        return new TransformDesktop(this.ele1, this.ele2, this.ele3)
+    }
 }
 function W4(ele1, ele2, ele3, ele4) {
     this.ele1 = ele1
@@ -401,6 +405,96 @@ function Transform(ele1, ele2) {
         $ele1.off("touchstart", null)
         $(document).off("touchmove", null)
         $(document).off("touchend", null)
+        return this
+    }
+}
+
+function TransformDesktop(ele1, ele2, ele3) {
+    this.ele1 = ele1 // main element
+    this.ele2 = ele2 // drag element
+    this.ele3 = ele3 // resize element
+    this.x = 0
+    this.y = 0
+    this.scale = 1
+    this.angle = 0
+    const $ele1 = $(this.ele1)
+    const $ele2 = $(this.ele2)
+    const $ele3 = $(this.ele3)
+    const thisObject = this
+
+    this.setValue = function(x, y, scale, angle) {
+        this.x = (x !== undefined) ? x : this.x
+        this.y = (y !== undefined) ? y : this.y
+        this.scale = (scale !== undefined) ? scale : this.scale
+        this.angle = (scale !== undefined) ? angle : this.angle
+    }
+    this.performTransform = function(x, y, scale, angle) {
+        $ele1.css({
+            transform: `translate(${x}px, ${y}px) scale(${scale}) rotate(${angle}deg)`
+        })
+    }
+
+    this.exportData = function() {
+        return [this.x, this.y, this.scale, this.angle]
+    }
+
+    this.draggable = function() {
+        let iPosX, iPosY, posX, posY, dX, dY
+        $ele2.on("mousedown", function(e) {
+            e.preventDefault()
+            e.stopPropagation()
+            let iPosX = e.clientX
+            let iPosY = e.clientY
+            let [posX, posY, scale, angle] = thisObject.exportData()
+            $(window).on("mousemove", function(e) {
+                dX = e.clientX - iPosX
+                dY = e.clientY - iPosY
+                iPosX = e.clientX
+                iPosY = e.clientY
+                posX += dX
+                posY += dY
+                thisObject.performTransform(posX, posY, scale, angle)
+            })
+            $(window).on("mouseup", function() {
+                $(window).off("mousemove", null)
+                $(window).off("mouseup", null)
+                thisObject.setValue(posX, posY, undefined, undefined)
+            })
+        })
+        return this
+    }
+
+    this.distort = function() {
+        $ele3.on("mousedown", function(e) {
+            e.preventDefault()
+            e.stopPropagation()
+            let iVectorX, iVectorY, vectorX, vectorY, initialAngle, currentAngle, dScale, X, Y
+            X = $ele1.offset().left + $ele1.width()/2
+            Y = $ele1.offset().top + $ele1.height()/2
+            iVectorX = e.clientX - X
+            iVectorY = e.clientY - Y
+            let [posX, posY, scale, angle] = thisObject.exportData()
+            initialAngle = Math.atan2(iVectorX, iVectorY)
+            $(window).on("mousemove", function(e) {
+                vectorX = e.clientX - X
+                vectorY = e.clientY - Y
+                currentAngle = Math.atan2(vectorX, vectorY)
+                angle -= (currentAngle - initialAngle)*180/Math.PI
+                dScale = Math.sqrt(vectorX*vectorX + vectorY*vectorY)/Math.sqrt(iVectorX*iVectorX + iVectorY*iVectorY)
+                scale *= dScale
+                thisObject.performTransform(posX, posY, scale, angle)
+                iVectorX = vectorX
+                iVectorY = vectorY
+                initialAngle = currentAngle
+            })
+
+            $(window).on("mouseup", function() {
+                $(window).off("mousemove", null)
+                $(window).off("mouseup", null)
+                thisObject.setValue(undefined, undefined, angle, scale)
+                console.log(thisObject.exportData())
+            })
+        })
         return this
     }
 }

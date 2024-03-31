@@ -25,4 +25,3 @@
 
     // Output the vCard content
     echo $vCardContent;
-    }
