@@ -75,6 +75,4 @@ function circularLinkList() {
     this.length = function() {
         return length
     }
-
-
-
+}
