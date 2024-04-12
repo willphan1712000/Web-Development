@@ -201,8 +201,8 @@ function PassShowHide(input) {
 }
 
 function Upload(ele1, ele2) {
-    this.ele1 = ele1
-    this.ele2 = ele2
+    this.ele1 = ele1 // element to click
+    this.ele2 = ele2 // input element to click
     const $ele1 = $(this.ele1)
     const $ele2 = $(this.ele2)
     const thisObject = this
@@ -439,12 +439,12 @@ function TransformDesktop(ele1, ele2, ele3) {
     }
 
     this.draggable = function() {
-        let iPosX, iPosY, posX, posY, dX, dY
         $ele2.on("mousedown", function(e) {
+            let iPosX, iPosY, dX, dY
             e.preventDefault()
             e.stopPropagation()
-            let iPosX = e.clientX
-            let iPosY = e.clientY
+            iPosX = e.clientX
+            iPosY = e.clientY
             let [posX, posY, scale, angle] = thisObject.exportData()
             $(window).on("mousemove", function(e) {
                 dX = e.clientX - iPosX
@@ -471,13 +471,13 @@ function TransformDesktop(ele1, ele2, ele3) {
             let iVectorX, iVectorY, vectorX, vectorY, initialAngle, currentAngle, dScale, X, Y
             X = $ele1.offset().left + $ele1.width()/2
             Y = $ele1.offset().top + $ele1.height()/2
-            iVectorX = e.clientX - X
-            iVectorY = e.clientY - Y
+            iVectorX = e.clientX + window.scrollX - X
+            iVectorY = e.clientY + window.scrollY - Y
             let [posX, posY, scale, angle] = thisObject.exportData()
             initialAngle = Math.atan2(iVectorX, iVectorY)
             $(window).on("mousemove", function(e) {
-                vectorX = e.clientX - X
-                vectorY = e.clientY - Y
+                vectorX = e.clientX + window.scrollX - X
+                iVectorY = e.clientY + window.scrollY - Y
                 currentAngle = Math.atan2(vectorX, vectorY)
                 angle -= (currentAngle - initialAngle)*180/Math.PI
                 dScale = Math.sqrt(vectorX*vectorX + vectorY*vectorY)/Math.sqrt(iVectorX*iVectorX + iVectorY*iVectorY)
@@ -491,8 +491,7 @@ function TransformDesktop(ele1, ele2, ele3) {
             $(window).on("mouseup", function() {
                 $(window).off("mousemove", null)
                 $(window).off("mouseup", null)
-                thisObject.setValue(undefined, undefined, angle, scale)
-                console.log(thisObject.exportData())
+                thisObject.setValue(undefined, undefined, scale, angle)
             })
         })
         return this

@@ -19,8 +19,15 @@ $$(element).addSpinner().gradientSpinner().show() // Still in development
 ```js
 $$(element).transform()
 ```
-
-
+#### 4. upload
+```js
+const upload = $$(element to click, input element to click).upload().openFile() // Open input
+// get source file from input file
+input.change((e) => {
+    upload.fileHandling (e, function(src))
+})
+upload.drawImage(img tag element, x, y, scale, angle, width of canvas, height of canvas, width of container of img tag element, height of container of img tag element)
+```
 
 
 ### WW.js is for backend development
