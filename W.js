@@ -267,49 +267,36 @@ function Toggle(ele1, ele2) {
 
 function Transform(ele1, ele2, ele3) {
     this.ele1 = ele1 // Main element
-    this.ele2 = ele2 // Collision element
-    this.ele3 = ele3 // Controller element
+    this.ele2 = ele2 // container
     this.collided = false
+    this.deleted = true
     this.x = 0
     this.y = 0
-    this.scale = 1
     this.angle = 0
-    const $ele1 = $(this.ele1)
+    this.w = 0
+    this.h = 0
     const $ele2 = $(this.ele2)
-    const $ele3 = $(this.ele3)
-    const $resize = $ele3.find(".resize")
-    const $rotate = $ele3.find(".rotate")
+    const imgFrame = document.querySelector(this.ele2)
+    this.controllerClassName = this.ele1.substring(1) + '--controller'
     const thisObject = this
+
+    const img = document.querySelector(this.ele1 + " > img")
+    let ratio = img.width / img.height
+
+    this.setRatio = function(r) {
+        ratio = r
+    }
     
-    this.setValue = function(x, y, scale, angle) {
+    this.setValue = function(x, y, angle, w, h) {
         this.x = (x !== undefined) ? x : this.x
         this.y = (y !== undefined) ? y : this.y
-        this.scale = (scale !== undefined) ? scale : this.scale
         this.angle = (angle !== undefined) ? angle : this.angle
-    }
-    this.performTransform = function(x, y, scale, angle) {
-        $ele1.css({
-            transform: `translate(${x}px, ${y}px) scale(${scale}) rotate(${angle}deg)`
-        })
-        $ele3.css({
-            transform: `translate(${x}px, ${y}px) scale(${scale}) rotate(${angle}deg)`
-        })
-    }
-
-    this.performResize = function(width, height) {
-        $ele1.css({
-            width: width,
-            height: height,
-
-        })
-        $ele3.css({
-            width: width,
-            height: height
-        })
+        this.w = (w !== undefined) ? w : this.w
+        this.h = (h !== undefined) ? h : this.h
     }
 
     this.exportData = function() {
-        return [this.x, this.y, this.scale, this.angle]
+        return [this.x, this.y, this.angle, this.w, this.h]
     }
 
     this.isCollided = function() {
@@ -320,350 +307,420 @@ function Transform(ele1, ele2, ele3) {
         this.collided = is
     }
 
-    this.draggableTouch = function() {
-        let iPosX, iPosY, posX, posY, dX, dY
-        $ele3.on("touchstart", function(e) {
-            e.preventDefault()
-            e.stopPropagation()
-            iPosX = e.touches[0].clientX
-            iPosY = e.touches[0].clientY
-            let [posX, posY, scale, angle] = thisObject.exportData()
-            $ele3.on("touchmove", function(e) {
-                dX = e.touches[0].clientX - iPosX
-                dY = e.touches[0].clientY - iPosY
-                iPosX = e.touches[0].clientX
-                iPosY = e.touches[0].clientY
-                posX += dX
-                posY += dY
-                thisObject.performTransform(posX, posY, scale, angle)
-            })
-            $ele3.on("touchend", function() {
-                $ele3.off("touchmove", null)
-                $ele3.off("touchend", null)
-                thisObject.setValue(posX, posY, undefined, undefined)
-            })
-        })
+    this.isDeleted = function() {
+        return this.deleted
+    }
+
+    this.setDeleted = function(is) {
+        this.deleted = is
+    }
+
+    this.css = `
+        ${this.ele1} {
+            position: absolute;
+            transform-origin: top left;
+            user-select: none;
+        }
+        ${this.ele1} > img {
+            object-fit: contain;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            z-index: 1;
+            transform: translate(-50%, -50%)
+        }
+        .${this.controllerClassName}--container {
+            position: absolute;
+            transform-origin: top left;
+            user-select: none;
+        }
+        .${this.controllerClassName} {
+            position: absolute;
+            user-select: none;
+            border: solid 3px #6924d5;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+        }
+        .${this.controllerClassName} .resize {
+            background-color: #fff;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+            transition: all .1s linear;
+        }
+        .${this.controllerClassName} .resize.show {
+            background-color: #6924d5;
+        }
+        .${this.controllerClassName} .resize > .circle {
+            background-color: #f0f0f0a8;
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+            z-index: -1;
+            visibility: hidden;
+            transition: all .1s linear;
+        }
+        .${this.controllerClassName} .resize > .circle.show {
+            visibility: visible;
+        }
+        .${this.controllerClassName} .resize.resize-topleft {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+        }
+        .${this.controllerClassName} .resize.resize-topright {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+        }
+        .${this.controllerClassName} .resize.resize-bottomleft {
+            position: absolute;
+            bottom: -10px;
+            left: -10px;
+        }
+        .${this.controllerClassName} .resize.resize-bottomright {
+            position: absolute;
+            bottom: -10px;
+            right: -10px;
+        }
+        .${this.controllerClassName} .rotate {
+            position: absolute;
+            top: -50px;
+            left: calc(50% - 15px);
+            width: 30px;
+            height: 30px;
+            background-color: #fff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .${this.controllerClassName} .delete {
+            position: absolute;
+            bottom: -50px;
+            left: calc(50% - 15px);
+            width: 30px;
+            height: 30px;
+            background-color: #fff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    `
+
+    this.controllerTemplate = `
+    <div class="${this.controllerClassName}--container">
+    <div class="${this.controllerClassName}">
+        <div class="dot resize resize-topleft"><div class="circle"></div></div>
+        <div class="dot resize resize-topright"><div class="circle"></div></div>
+        <div class="dot resize resize-bottomleft"><div class="circle"></div></div>
+        <div class="dot resize resize-bottomright"><div class="circle"></div></div>
+        <div class="dot rotate"><i class="fa-solid fa-rotate"></i></div>
+        <div class="dot delete"><i class="fa-solid fa-trash"></i></div>
+    </div>
+    </div>
+    `
+
+    this.addController = function() {
+        $ele2.after(this.controllerTemplate)
         return this
     }
 
-    this.draggableDesk = function() {
-        $ele3.on("mousedown", function(e) {
-            let iPosX, iPosY, dX, dY
-            e.preventDefault()
-            e.stopPropagation()
-            iPosX = e.clientX
-            iPosY = e.clientY
-            let [posX, posY, scale, angle] = thisObject.exportData()
-            $(window).on("mousemove", function(e) {
-                dX = e.clientX - iPosX
-                dY = e.clientY - iPosY
-                iPosX = e.clientX
-                iPosY = e.clientY
-                posX += dX
-                posY += dY
-                thisObject.performTransform(posX, posY, scale, angle)
-            })
-            $(window).on("mouseup", function() {
-                $(window).off("mousemove", null)
-                $(window).off("mouseup", null)
-                thisObject.setValue(posX, posY, undefined, undefined)
-            })
-        })
+    this.addCSSForController = function() {
+        const styleElement = document.createElement('style')
+        styleElement.textContent = this.css
+        document.head.appendChild(styleElement)
         return this
     }
 
-    this.resizableTouch = function() {
-        function calculateRotate(x, y, cx, cy, angle) {
-            angle = angle * Math.PI / 180
-            return [
-                (x - cx) * Math.cos(angle) - (y - cy) * Math.sin(angle) + cx,
-                (x - cx) * Math.sin(angle) + (y - cy) * Math.cos(angle) + cy
-            ]
+    this.delete = function(cb) {
+        function handleDelete(e) {
+            e.preventDefault()
+            e.stopPropagation()
+            cb()
+            thisObject.setDeleted(true)
+        }
+        $(this.ele1 + "--controller .delete").on("touchstart", e => handleDelete(e))
+        $(this.ele1 + "--controller .delete").on("mousedown", e => handleDelete(e))
+        return this
+    }
+
+    this.repositionElement = function(x, y) {
+        const controllerWrapper = document.querySelector(this.ele1 + '--controller--container');
+        const boxWrapper = document.querySelector(this.ele1);
+
+        boxWrapper.style.left = x + 'px';
+        boxWrapper.style.top = y + 'px';
+        controllerWrapper.style.left = (x + imgFrame.offsetLeft + 3) + 'px';
+        controllerWrapper.style.top = (y + imgFrame.offsetTop + 3) + 'px';
+    }
+
+    this.resize = function(w, h) {
+        const controller = document.querySelector(this.ele1 + '--controller');
+        const img = document.querySelector(this.ele1 + " > img")
+
+        controller.style.width = w + 6 + 'px';
+        controller.style.height = h + 6 + 'px';
+        img.style.width = w + 'px';
+        // img.style.height = h + 'px';
+    }
+
+    this.rotateBox = function(deg) {
+        const controllerWrapper = document.querySelector(this.ele1 + '--controller--container');
+        const boxWrapper = document.querySelector(this.ele1);
+
+        boxWrapper.style.transform = `rotate(${deg}deg)`;
+        controllerWrapper.style.rotate = `${deg}deg`;
+        controllerWrapper.querySelector(".delete").style.rotate = `${-deg}deg`
+    }
+
+    this.transform = function() {
+        const controller = document.querySelector(this.ele1 + '--controller');
+        const controllerWrapper = document.querySelector(this.ele1 + '--controller--container');
+        const boxWrapper = document.querySelector(this.ele1);
+
+        const minWidth = 40;
+        const minHeight = 40;
+
+        var initX, initY, mousePressX, mousePressY, initW, initH, initRotate;
+
+        function getCurrentRotation(el) {
+            var st = window.getComputedStyle(el, null);
+            var tm = st.getPropertyValue("-webkit-transform") ||
+                st.getPropertyValue("-moz-transform") ||
+                st.getPropertyValue("-ms-transform") ||
+                st.getPropertyValue("-o-transform") ||
+                st.getPropertyValue("transform")
+            "none";
+            if (tm != "none") {
+                var values = tm.split('(')[1].split(')')[0].split(',');
+                var angle = Math.round(Math.atan2(values[1], values[0]) * (180 / Math.PI));
+                return (angle < 0 ? angle + 360 : angle);
+            }
+            return 0;
         }
 
-        function getCenter($ele, posX, posY) {
-            return [
-                posX + $ele.width()/2,
-                posY + $ele.height()/2
-            ]
+        function mousedownCb(event) {
+            event.target.classList.add("show")
+            event.target.querySelector(".circle").classList.add("show")
+        }
+        
+        function mouseupCb(event) {
+            event.target.classList.remove("show")
+            event.target.querySelector(".circle").classList.remove("show")
         }
 
-        $resize.each(function(index, element) {
-            $(element).on("touchstart", function(e) {
-                e.preventDefault()
-                e.stopPropagation()
-                $(element).addClass("show")
-                $(element).find(".circle").addClass("show")
-                let r = $ele3.width() / $ele3.height()
-                let [posX, posY, scale, angle] = thisObject.exportData()
-                let x0 = $(".preview__imgArea--wrapper").offset().left - window.scrollX
-                let y0 = $(".preview__imgArea--wrapper").offset().top - window.scrollY
-                let [cx, cy] = getCenter($ele3, posX, posY)
-                let rotatedCorner, bottomright = false, bottomleft = false, topright = false
-                let dx
-                if($(element).hasClass("resize-bottomright")) {
-                    rotatedCorner = calculateRotate(posX, posY, cx, cy, angle)
-                    bottomright = true
-                } else if ($(element).hasClass("resize-bottomleft")) {
-                    rotatedCorner = calculateRotate(posX + $ele3.width(), posY, cx, cy, angle)
-                    bottomleft = true
-                } else if ($(element).hasClass("resize-topright")) {
-                    rotatedCorner = calculateRotate(posX, posY + $ele3.height(), cx, cy, angle)
-                    topright = true
-                } else {
-                    rotatedCorner = calculateRotate(posX + $ele3.width(), posY + $ele3.height(), cx, cy, angle)
-                }
-                $(window).on("touchmove", function(e) {
-                    let x = e.touches[0].clientX - x0
-                    let y = e.touches[0].clientY - y0
-                    let newCenter = [
-                        (rotatedCorner[0] + x) / 2,
-                        (rotatedCorner[1] + y) / 2
-                    ]
-
-                    let newCorner = calculateRotate(rotatedCorner[0], rotatedCorner[1], newCenter[0], newCenter[1], -angle)
-                    let newOppositeCorner = calculateRotate(x, y, newCenter[0], newCenter[1], -angle)
-
-                    if(bottomright) {
-                        dx = newOppositeCorner[0] - newCorner[0]
-                        posX = newCorner[0]
-                        posY = newCorner[1]
-                    } else if (bottomleft) {
-                        dx = - (newOppositeCorner[0] - newCorner[0])
-                        posX = newCorner[0] + $ele3.width()
-                        posY = newCorner[1]
-                    } else if (topright) {
-                        dx = newOppositeCorner[0] - newCorner[0]
-                        posX = newCorner[0]
-                        posY = newCorner[1] + $ele3.height()
-                    } else {
-                        dx = - (newOppositeCorner[0] - newCorner[0])
-                        posX = newCorner[0] + $ele3.width()
-                        posY = newCorner[1] + $ele3.height()
-                    }
-                    
-                    thisObject.performResize(dx,dx / r)
-
-                    if(bottomright) {
-                        posX = newCorner[0]
-                        posY = newCorner[1]
-                    } else if (bottomleft) {
-                        posX = newCorner[0] - $ele3.width()
-                        posY = newCorner[1]
-                    } else if (topright) {
-                        posX = newCorner[0]
-                        posY = newCorner[1] - $ele3.height()
-                    } else {
-                        posX = newCorner[0] - $ele3.width()
-                        posY = newCorner[1] - $ele3.height()
-                    }
-
-                    thisObject.performTransform(posX, posY, scale, angle)
-                })
+        // drag support
+        function handleDrag(event, type) {
+            event.preventDefault()
+            event.stopPropagation()
+            initX = boxWrapper.offsetLeft;
+            initY = boxWrapper.offsetTop;
+            mousePressX = (type === 'desk') ? event.clientX : event.touches[0].clientX;
+            mousePressY = (type === 'desk') ? event.clientY : event.touches[0].clientY;
+            let [,,, w, h] = thisObject.exportData()
     
-                $(window).on("touchend", function() {
-                    $(window).off("touchmove", null)
-                    $(window).off("touchend", null)
-                    thisObject.setValue(posX, posY, scale, angle)
-                    $(element).removeClass("show")
-                    $(element).find(".circle").removeClass("show")
-                })
-            })
-        })
-        return this
-    }
-
-    this.rotateTouch = function() {
-        $rotate.on("touchstart", function(e) {
-            e.preventDefault()
-            e.stopPropagation()
-            let vectorX, vectorY, X, Y
-            X = $ele3.offset().left + $ele3.width()/2
-            Y = $ele3.offset().top + $ele3.height()/2
-            let [posX, posY, scale, angle] = thisObject.exportData()
-            $(window).on("touchmove", function(e) {
-                vectorX = X - e.touches[0].clientX - window.scrollX
-                vectorY = Y - e.touches[0].clientY - window.scrollY
-
-                angle = Math.atan2(vectorY, vectorX) * 180 / Math.PI + 90
-
-                thisObject.performTransform(posX, posY, scale, angle)
-            })
-
-            $(window).on("touchend", function() {
-                $(window).off("touchmove", null)
-                $(window).off("touchend", null)
-                thisObject.setValue(undefined, undefined, undefined, angle)
-            })
-        })
-        return this
-    }
-
-    this.resizableDesk = function() {
-        function calculateRotate(x, y, cx, cy, angle) {
-            angle = angle * Math.PI / 180
-            return [
-                (x - cx) * Math.cos(angle) - (y - cy) * Math.sin(angle) + cx,
-                (x - cx) * Math.sin(angle) + (y - cy) * Math.cos(angle) + cy
-            ]
-        }
-
-        function getCenter($ele, posX, posY) {
-            return [
-                posX + $ele.width()/2,
-                posY + $ele.height()/2
-            ]
-        }
-
-        $resize.each(function(index, element) {
-            $(element).on("mousedown", function(e) {
-                e.preventDefault()
-                e.stopPropagation()
-                $(element).addClass("show")
-                $(element).find(".circle").addClass("show")
-                let r = $ele3.width() / $ele3.height()
-                let [posX, posY, scale, angle] = thisObject.exportData()
-                let x0 = $(".preview__imgArea--wrapper").offset().left - window.scrollX
-                let y0 = $(".preview__imgArea--wrapper").offset().top - window.scrollY
-                let [cx, cy] = getCenter($ele3, posX, posY)
-                let rotatedCorner, bottomright = false, bottomleft = false, topright = false
-                let dx
-                if($(element).hasClass("resize-bottomright")) {
-                    rotatedCorner = calculateRotate(posX, posY, cx, cy, angle)
-                    bottomright = true
-                } else if ($(element).hasClass("resize-bottomleft")) {
-                    rotatedCorner = calculateRotate(posX + $ele3.width(), posY, cx, cy, angle)
-                    bottomleft = true
-                } else if ($(element).hasClass("resize-topright")) {
-                    rotatedCorner = calculateRotate(posX, posY + $ele3.height(), cx, cy, angle)
-                    topright = true
-                } else {
-                    rotatedCorner = calculateRotate(posX + $ele3.width(), posY + $ele3.height(), cx, cy, angle)
-                }
-                $(window).on("mousemove", function(e) {
-                    let x = e.clientX - x0
-                    let y = e.clientY - y0
-                    let newCenter = [
-                        (rotatedCorner[0] + x) / 2,
-                        (rotatedCorner[1] + y) / 2
-                    ]
-
-                    let newCorner = calculateRotate(rotatedCorner[0], rotatedCorner[1], newCenter[0], newCenter[1], -angle)
-                    let newOppositeCorner = calculateRotate(x, y, newCenter[0], newCenter[1], -angle)
-
-                    if(bottomright) {
-                        dx = newOppositeCorner[0] - newCorner[0]
-                        posX = newCorner[0]
-                        posY = newCorner[1]
-                    } else if (bottomleft) {
-                        dx = - (newOppositeCorner[0] - newCorner[0])
-                        posX = newCorner[0] + $ele3.width()
-                        posY = newCorner[1]
-                    } else if (topright) {
-                        dx = newOppositeCorner[0] - newCorner[0]
-                        posX = newCorner[0]
-                        posY = newCorner[1] + $ele3.height()
-                    } else {
-                        dx = - (newOppositeCorner[0] - newCorner[0])
-                        posX = newCorner[0] + $ele3.width()
-                        posY = newCorner[1] + $ele3.height()
-                    }
-                    
-                    thisObject.performResize(dx,dx / r)
-
-                    if(bottomright) {
-                        posX = newCorner[0]
-                        posY = newCorner[1]
-                    } else if (bottomleft) {
-                        posX = newCorner[0] - $ele3.width()
-                        posY = newCorner[1]
-                    } else if (topright) {
-                        posX = newCorner[0]
-                        posY = newCorner[1] - $ele3.height()
-                    } else {
-                        posX = newCorner[0] - $ele3.width()
-                        posY = newCorner[1] - $ele3.height()
-                    }
-
-                    thisObject.performTransform(posX, posY, scale, angle)
-                })
+            function eventMoveHandler(event) {
+                let x = (type === 'desk') ? event.clientX : event.touches[0].clientX
+                let y = (type === 'desk') ? event.clientY : event.touches[0].clientY
+                var posX = initX + (x - mousePressX)
+                var posY = initY + (y - mousePressY)
+                thisObject.repositionElement(posX, posY);
+                thisObject.setValue(posX - w / 2, posY - h / 2, undefined, undefined, undefined)
+            }
     
-                $(window).on("mouseup", function() {
-                    $(window).off("mousemove", null)
-                    $(window).off("mouseup", null)
-                    thisObject.setValue(posX, posY, scale, angle)
-                    $(element).removeClass("show")
-                    $(element).find(".circle").removeClass("show")
-                })
-            })
-        })
-        return this
-    }
+            if(type === 'desk') {
+                controllerWrapper.addEventListener('mousemove', eventMoveHandler, false);
+                window.addEventListener('mouseup', function eventEndHandler() {
+                    controllerWrapper.removeEventListener('mousemove', eventMoveHandler, false);
+                    window.removeEventListener('mouseup', eventEndHandler);
+                }, false);
+            } else {
+                controllerWrapper.addEventListener('touchmove', eventMoveHandler, false);
+                window.addEventListener('touchend', function eventEndHandler() {
+                    controllerWrapper.removeEventListener('touchmove', eventMoveHandler, false);
+                    window.removeEventListener('touchend', eventEndHandler);
+                }, false);
+            }
+        }
+        controllerWrapper.addEventListener('mousedown', e => handleDrag(e, 'desk'), false);
+        controllerWrapper.addEventListener('touchstart', e => handleDrag(e, 'touch'), false);
+        // done drag support
 
-    this.rotateDesk = function() {
-        $rotate.on("mousedown", function(e) {
-            e.preventDefault()
-            e.stopPropagation()
-            let vectorX, vectorY, X, Y
-            X = $ele3.offset().left + $ele3.width()/2
-            Y = $ele3.offset().top + $ele3.height()/2
-            let [posX, posY, scale, angle] = thisObject.exportData()
-            $(window).on("mousemove", function(e) {
-                vectorX = X - e.clientX - window.scrollX
-                vectorY = Y - e.clientY - window.scrollY
+        // handle resize
+        // var rightMid = document.getElementById("right-mid");
+        // var leftMid = document.getElementById("left-mid");
+        // var topMid = document.getElementById("top-mid");
+        // var bottomMid = document.getElementById("bottom-mid");
 
-                angle = Math.atan2(vectorY, vectorX) * 180 / Math.PI + 90
+        var leftTop = document.querySelector(this.ele1 + "--controller .resize-topleft");
+        var rightTop = document.querySelector(this.ele1 + "--controller .resize-topright");
+        var rightBottom = document.querySelector(this.ele1 + "--controller .resize-bottomright");
+        var leftBottom = document.querySelector(this.ele1 + "--controller .resize-bottomleft");
 
-                thisObject.performTransform(posX, posY, scale, angle)
-            })
+        function resizeHandler(event, left = false, top = false, xResize = false, yResize = false, type) {
+            event.preventDefault()
+            event.stopPropagation()
+            initX = boxWrapper.offsetLeft;
+            initY = boxWrapper.offsetTop;
+            mousePressX = (type === 'desk') ? event.clientX : event.touches[0].clientX;
+            mousePressY = (type === 'desk') ? event.clientY : event.touches[0].clientY;
 
-            $(window).on("mouseup", function() {
-                $(window).off("mousemove", null)
-                $(window).off("mouseup", null)
-                thisObject.setValue(undefined, undefined, undefined, angle)
-            })
-        })
-        return this
-    }
+            initW = img.offsetWidth;
+            initH = img.offsetHeight;
 
-    this.collide = function(touchedCb, notTouchedCb, touchEndCb) {
-        let ele2X = $ele2.offset().left + $ele2.width()/2
-        let ele2Y = $ele2.offset().top - $(window).scrollTop() + $ele2.height()/2
-        let radius = $ele2.width()/2
-        $ele3.on("touchstart", function(e) {
-            e.preventDefault()
-            e.stopPropagation()
-            $(this).on("touchmove", function(e) {
-                let fingerX = e.targetTouches[0].clientX
-                let fingerY = e.targetTouches[0].clientY
-                let distanceX = fingerX - ele2X
-                let distanceY = fingerY - ele2Y
-                let distance = Math.sqrt(distanceX*distanceX + distanceY*distanceY)
-                if(distance <= radius) {
-                    thisObject.setIsCollided(true)
-                    touchedCb()
-                } else {
-                    thisObject.setIsCollided(false)
-                    notTouchedCb()
+            initRotate = getCurrentRotation(boxWrapper);
+            
+            var initRadians = initRotate * Math.PI / 180;
+            var cosFraction = Math.cos(initRadians);
+            var sinFraction = Math.sin(initRadians);
+            mousedownCb(event)
+            var vectorC = [mousePressX - initX - imgFrame.offsetLeft, mousePressY - initY - imgFrame.offsetTop]
+            function eventMoveHandler(event) {
+                var x = ((type === 'desk') ? event.clientX : event.touches[0].clientX)
+                var y = ((type === 'desk') ? event.clientY : event.touches[0].clientY)
+                var wDiff = x - mousePressX
+                var hDiff = y - mousePressY
+                var vectorD = [wDiff, hDiff]
+                const c = (vectorC[0] * vectorD[0] + vectorC[1] * vectorD[1]) / (vectorC[0] * vectorC[0] + vectorC[1] * vectorC[1])
+                var vectorH = [c * vectorC[0], c * vectorC[1]]
+                // var rotatedWDiff = cosFraction * wDiff + sinFraction * hDiff;
+                // var rotatedHDiff = cosFraction * hDiff - sinFraction * wDiff;
+                var rotatedWDiff = cosFraction * vectorH[0] + sinFraction * vectorH[1];
+                var rotatedHDiff = cosFraction * vectorH[1] - sinFraction * vectorH[0];
+                rotatedHDiff = (rotatedHDiff*rotatedWDiff > 0) ? (rotatedWDiff / ratio) : (- rotatedWDiff / ratio);
+
+                var newW = initW, newH = initH, newX = initX, newY = initY;
+
+                if (xResize) {
+                    if (left) {
+                        newW = initW - rotatedWDiff;
+                        if (newW < minWidth) {
+                        newW = minWidth;
+                        rotatedWDiff = initW - minWidth;
+                        }
+                    } else {
+                        newW = initW + rotatedWDiff;
+                        if (newW < minWidth) {
+                        newW = minWidth;
+                        rotatedWDiff = minWidth - initW;
+                        }
+                    }
+                    newX += 0.5 * rotatedWDiff * cosFraction;
+                    newY += 0.5 * rotatedWDiff * sinFraction;
                 }
-            })
-            $(this).on("touchend", function() {
-                if(thisObject.isCollided()) {
-                    thisObject.setValue(0, 0, 1, 0)
-                    let [x, y, scale, angle] = thisObject.exportData()
-                    thisObject.performTransform($(this), x, y, scale, angle)
-                    touchEndCb()
+
+                if (yResize) {
+                    if (top) {
+                        newH = initH - rotatedHDiff;
+                        if (newH < minHeight) {
+                        newH = minHeight;
+                        rotatedHDiff = initH - minHeight;
+                        }
+                    } else {
+                        newH = initH + rotatedHDiff;
+                        if (newH < minHeight) {
+                        newH = minHeight;
+                        rotatedHDiff = minHeight - initH;
+                        }
+                    }
+                    newX -= 0.5 * rotatedHDiff * sinFraction;
+                    newY += 0.5 * rotatedHDiff * cosFraction;
                 }
-                $(this).off("touchmove", null)
-                $(this).off("touchend", null)
-            })
-        })
-        return this
-    }
-    this.terminate = function() {
-        $ele1.off("touchstart", null)
-        $(document).off("touchmove", null)
-        $(document).off("touchend", null)
+
+                thisObject.resize(newW, newH);
+                thisObject.repositionElement(newX, newY);
+                thisObject.setValue(newX - newW / 2, newY - newH / 2, undefined, newW, newH)
+            }
+
+            if(type === 'desk') {
+                window.addEventListener('mousemove', eventMoveHandler, false);
+                window.addEventListener('mouseup', function eventEndHandler() {
+                    mouseupCb(event)
+                    window.removeEventListener('mousemove', eventMoveHandler, false);
+                    window.removeEventListener('mouseup', eventEndHandler);
+                }, false);
+            } else {
+                window.addEventListener('touchmove', eventMoveHandler, false);
+                window.addEventListener('touchend', function eventEndHandler() {
+                    mouseupCb(event)
+                    window.removeEventListener('touchmove', eventMoveHandler, false);
+                    window.removeEventListener('touchend', eventEndHandler);
+                }, false);
+            }
+        }
+
+
+        // rightMid.addEventListener('mousedown', e => resizeHandler(e, false, false, true, false));
+        // leftMid.addEventListener('mousedown', e => resizeHandler(e, true, false, true, false));
+        // topMid.addEventListener('mousedown', e => resizeHandler(e, false, true, false, true));
+        // bottomMid.addEventListener('mousedown', e => resizeHandler(e, false, false, false, true));
+        leftTop.addEventListener('mousedown', e => resizeHandler(e, true, true, true, true, 'desk'));
+        rightTop.addEventListener('mousedown', e => resizeHandler(e, false, true, true, true, 'desk'));
+        rightBottom.addEventListener('mousedown', e => resizeHandler(e, false, false, true, true, 'desk'));
+        leftBottom.addEventListener('mousedown', e => resizeHandler(e, true, false, true, true, 'desk'));
+
+        leftTop.addEventListener('touchstart', e => resizeHandler(e, true, true, true, true, 'touch'));
+        rightTop.addEventListener('touchstart', e => resizeHandler(e, false, true, true, true, 'touch'));
+        rightBottom.addEventListener('touchstart', e => resizeHandler(e, false, false, true, true, 'touch'));
+        leftBottom.addEventListener('touchstart', e => resizeHandler(e, true, false, true, true, 'touch'));
+
+        // handle rotation
+        var rotate = document.querySelector(thisObject.ele1 + "--controller .rotate");
+        function handleRotate(event, type) {
+            event.preventDefault()
+            event.stopPropagation()
+    
+            initX = event.target.offsetLeft;
+            initY = event.target.offsetTop;
+            mousePressX = (type === 'desk') ? event.clientX : event.touches[0].clientX;
+            mousePressY = (type === 'desk') ? event.clientY : event.touches[0].clientY;
+    
+    
+            var arrow = document.querySelector(thisObject.ele1 + '--controller');
+            var arrowRects = arrow.getBoundingClientRect();
+            var arrowX = arrowRects.left + arrowRects.width / 2;
+            var arrowY = arrowRects.top + arrowRects.height / 2;
+    
+            function eventMoveHandler(event) {
+                let x = (type === 'desk') ? event.clientX : event.touches[0].clientX
+                let y = (type === 'desk') ? event.clientY : event.touches[0].clientY
+                var angle = Math.atan2(y - arrowY, x - arrowX) + Math.PI / 2;
+                angle *= 180 / Math.PI
+                thisObject.rotateBox(angle);
+                thisObject.setValue(undefined, undefined, angle, undefined, undefined)
+            }
+            if(type === 'desk') {
+                window.addEventListener('mousemove', eventMoveHandler, false);
+    
+                window.addEventListener('mouseup', function eventEndHandler() {
+                    window.removeEventListener('mousemove', eventMoveHandler, false);
+                    window.removeEventListener('mouseup', eventEndHandler);
+                }, false);
+            } else {
+                window.addEventListener('touchmove', eventMoveHandler, false);
+    
+                window.addEventListener('touchend', function eventEndHandler() {
+                    window.removeEventListener('touchmove', eventMoveHandler, false);
+                    window.removeEventListener('touchend', eventEndHandler);
+                }, false);
+            }
+        }
+        rotate.addEventListener('mousedown', e => handleRotate(e, 'desk'), false);
+        rotate.addEventListener('touchstart', e => handleRotate(e, 'touch'), false);
+
+        thisObject.resize(200, 200 / ratio);
+        thisObject.repositionElement(100, 100 / ratio);
+        thisObject.setValue(0, 0, 0, 200, 200 / ratio)
         return this
     }
 }
