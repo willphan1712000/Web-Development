@@ -278,6 +278,7 @@ function Transform(ele1, ele2, ele3) {
     const $ele2 = $(this.ele2)
     const imgFrame = document.querySelector(this.ele2)
     this.controllerClassName = this.ele1.substring(1) + '--controller'
+    let isRotateOffScreen = false;
     const thisObject = this
 
     const img = document.querySelector(this.ele1 + " > img")
@@ -406,7 +407,7 @@ function Transform(ele1, ele2, ele3) {
         .${this.controllerClassName} .delete {
             position: absolute;
             bottom: -50px;
-            left: calc(50% - 15px);
+            left: calc(50% + 40px);
             width: 30px;
             height: 30px;
             background-color: #fff;
@@ -425,13 +426,16 @@ function Transform(ele1, ele2, ele3) {
         <div class="dot resize resize-bottomleft"><div class="circle"></div></div>
         <div class="dot resize resize-bottomright"><div class="circle"></div></div>
         <div class="dot rotate"><i class="fa-solid fa-rotate"></i></div>
+        <div class="dot rotate shadow" style="visibility: hidden;"><i class="fa-solid fa-rotate"></i></div>
         <div class="dot delete"><i class="fa-solid fa-trash"></i></div>
+        <div class="dot delete shadow" style="visibility: hidden;"><i class="fa-solid fa-trash"></i></div>
     </div>
     </div>
     `
 
     this.addController = function() {
         $ele2.after(this.controllerTemplate)
+        thisObject.addCSSForController().handleElementGoOffScreen("." + thisObject.controllerClassName + " .rotate", "." + thisObject.controllerClassName + " .rotate.shadow", "rotate").handleElementGoOffScreen("." + thisObject.controllerClassName + " .delete", "." + thisObject.controllerClassName + " .delete.shadow", "delete")
         return this
     }
 
@@ -481,6 +485,49 @@ function Transform(ele1, ele2, ele3) {
         boxWrapper.style.transform = `rotate(${deg}deg)`;
         controllerWrapper.style.rotate = `${deg}deg`;
         controllerWrapper.querySelector(".delete").style.rotate = `${-deg}deg`
+    }
+
+    this.handleElementGoOffScreen = function(main, shadow, type) {
+        // This function is responsible for handling element going off the screen by moving it to the oppiste side if it disappears from the screen
+        const mainEle = document.querySelector(main);
+        const shadowEle = document.querySelector(shadow);
+        
+        const options = {
+            root: null,
+            rootMargin: "0px",
+            threshold: 0.1
+        }
+        
+        const callback = (entries) => {
+            entries.forEach(entry => {
+                switch(type) {
+                    case 'rotate':
+                        if(!entry.isIntersecting) {
+                            mainEle.style.top = "auto";
+                            mainEle.style.bottom = "-50px";
+                            isRotateOffScreen = true;
+                        } else {
+                            mainEle.style.bottom = "auto";
+                            mainEle.style.top = "-50px";
+                            isRotateOffScreen = false;
+                        }
+                        break
+                    case 'delete':
+                        if(!entry.isIntersecting) {
+                            mainEle.style.bottom = "auto";
+                            mainEle.style.top = "-50px";
+                        } else {
+                            mainEle.style.top = "auto";
+                            mainEle.style.bottom = "-50px";
+                        }
+                        break
+                }
+            })
+        }
+        
+        const observer = new IntersectionObserver(callback, options);
+        observer.observe(shadowEle)
+        return this
     }
 
     this.transform = function() {
@@ -691,11 +738,14 @@ function Transform(ele1, ele2, ele3) {
             var arrowX = arrowRects.left + arrowRects.width / 2;
             var arrowY = arrowRects.top + arrowRects.height / 2;
     
+            const compensation = isRotateOffScreen ? 180 : 0
+
             function eventMoveHandler(event) {
                 let x = (type === 'desk') ? event.clientX : event.touches[0].clientX
                 let y = (type === 'desk') ? event.clientY : event.touches[0].clientY
                 var angle = Math.atan2(y - arrowY, x - arrowX) + Math.PI / 2;
                 angle *= 180 / Math.PI
+                angle += compensation
                 thisObject.rotateBox(angle);
                 thisObject.setValue(undefined, undefined, angle, undefined, undefined)
             }
