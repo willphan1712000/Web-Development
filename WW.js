@@ -122,12 +122,13 @@ function FormValidate(input, msg, success, error, regex) {
     }
 }
 
-function Signup(username, email, password, error, submit) {
+function Signup(username, email, password, error, submit, url) {
     this.username = username
     this.email = email
     this.password = password
     this.error = error
     this.submit = submit
+    this.url = url
     const $usernameInput = $(this.username)
     const $emailInput = $(this.email)
     const $passwordInput = $(this.password)
@@ -152,7 +153,7 @@ function Signup(username, email, password, error, submit) {
                     } else {
                         $error.html("")
                         $.ajax({
-                            url: "/data/signup.php",
+                            url: thisObject.url,
                             method: "POST",
                             dataType: "json",
                             data: {
