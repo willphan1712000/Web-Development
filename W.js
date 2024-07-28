@@ -136,8 +136,8 @@ function Spinner(ele1) {
         styleElement.textContent = `
         .spinner {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: calc(50% - 8px);
+            left: calc(50% - 8px);
         }
         .spinner::after {
             content: "";
