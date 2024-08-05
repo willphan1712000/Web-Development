@@ -102,9 +102,11 @@ class W4 {
         this.ele3 = ele3;
         this.ele4 = ele4;
     }
-}
 
-type W13 = W1 | W3;
+    public search(): Search {
+        return new Search(this.ele1, this.ele2, this.ele3, this.ele4);
+    }
+}
 
 class Table extends W3 {
     // Follow the object format
@@ -621,7 +623,6 @@ class Transform {
 }
 
 class CopyToClipboard extends W2 {
-
     constructor(ele1: string, ele2: string) {
         super(ele1, ele2);
     }
@@ -632,5 +633,49 @@ class CopyToClipboard extends W2 {
                 cb();
             });
         });
+    }
+}
+
+interface Data {
+    location: string,
+    header: {
+        [key: number]: string
+    },
+    data: {
+        [key: number]: {
+            [key: number]: string
+        }
+    }
+};
+class Search extends W4 {
+    // ele1 is text input
+    // ele2 is data field
+    // ele3 is worker address
+    constructor(ele1: string, ele2: Data, ele3: string, ele4: () => void) {
+        super(ele1, ele2, ele3, ele4);
+    }
+
+    public run() : this {
+        const $input = $(this.ele1);
+        const location = this.ele2.location;
+        const header = this.ele2.header;
+        const data = this.ele2.data;
+        const worker = new Worker(this.ele3 + "?v=" + (new Date()).getTime());
+        
+        $input.on("input", e => {
+            worker.postMessage({
+                message: "search",
+                input: e.target.value,
+                data: data,
+            });
+        })
+
+        worker.onmessage = (e) => {
+            $(location).empty();
+            $$(location, header, e.data).table().create();
+            this.ele4();
+        }
+
+        return this;
     }
 }

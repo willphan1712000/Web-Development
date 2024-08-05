@@ -42,6 +42,10 @@ class WW2 {
         this.ele1 = ele1;
         this.ele2 = ele2;
     }
+
+    api() : API {
+        return new API(this.ele1, this.ele2);
+    }
 }
 
 class WW3 {
@@ -311,20 +315,50 @@ class Signup extends WW5 {
     }
 
     createFiles(username: string): void {
-        const data = {
+        $$$("/data/update.php", {
             type: 'create',
             username: username
-        };
+        }).api().post();
+    }
+}
 
-        $.ajax({
-            url: "/data/update.php",
-            method: "POST",
-            dataType: "html",
-            contentType: "application/json",
-            data: JSON.stringify(data),
-            success: (e: any) => {
-                // Handle success
-            }
-        });
+class API extends WW2 {
+    constructor(src: string, data: object) {
+        super(src, data);
+    }
+
+    public get() : Promise<object> {
+        return new Promise((res, rej) => {
+            $.ajax({
+                url: this.ele1,
+                method: "GET",
+                dataType: "json",
+                contentType: "application/json",
+                success: (e: any) => {
+                    res(e);
+                },
+                error: (jqXHR: any, textStatus: string, errorThrown: string) => {
+                    rej(new Error(`AJAX request failed: ${textStatus}, ${errorThrown}`));
+                }
+            })
+        })
+    }
+
+    public post() : Promise<object> {
+        return new Promise((res, rej) => {
+            $.ajax({
+                url: this.ele1,
+                method: "POST",
+                data: JSON.stringify(this.ele2),
+                dataType: "json",
+                contentType: "application/json",
+                success: (e: any) => {
+                    res(e);
+                },
+                error: (jqXHR: any, textStatus: string, errorThrown: string) => {
+                    rej(new Error(`AJAX request failed: ${textStatus}, ${errorThrown}`));
+                }
+            })
+        })
     }
 }
