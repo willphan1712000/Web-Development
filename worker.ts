@@ -20,7 +20,7 @@ self.onmessage = function(e) {
         }
     }
 
-
+    // This is for search work, which is resource intensive
     else if (e.data.message === "search") {
         const data = e.data.data;
         const input = e.data.input;
