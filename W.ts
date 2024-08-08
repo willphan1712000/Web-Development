@@ -237,31 +237,26 @@ class PassShowHide extends W1 {
     }
 
     public run(): this {
-        const inputWidth = this.$input.innerWidth() ?? 0;
-        const inputHeight = this.$input.innerHeight() ?? 0;
+        const inputWidth = this.$input.innerWidth();
+        const inputHeight = this.$input.innerHeight();
+        
+        // Create a wrapper div and move the input inside it
+        this.$input.wrap('<div style="position: relative;"></div>');
 
-        // Create a wrapper div
-        this.$input.after('<div style="position: relative;"></div>');
+        // Adjust the after method to add the eye icon after the input within the new wrapper
+        this.$input.after(
+            `<i class="fa-solid fa-eye eye" style="position: absolute; left: ${inputWidth! - (18 + 3)}px; top: ${(inputHeight! - 16) / 2}px; cursor: pointer; color: #333;"></i>`
+        );
 
-        // Append input HTML inside the new wrapper div
-        $(this.inputSelector + " + div").append(this.$input.html());
+        const $eye = this.$input.next();
 
-        // Add an eye icon for toggling visibility
-        this.$input.after(`<i class="fa-solid fa-eye eye" style="position: absolute;left: ${inputWidth - (18 + 3)}px; top: ${(inputHeight - 16) / 2}px; cursor: pointer; color: #333;"></i>`);
-
-        // Set up the click event to toggle password visibility
-        const $eye = $(this.inputSelector).next();
-        $eye.click(() => {
+        $eye.on('click', () => {
             if (this.$input.attr('type') === "password") {
                 this.$input.attr('type', 'text');
-                $eye.css({
-                    color: "green"
-                });
+                $eye.css({ color: "green" });
             } else {
                 this.$input.attr('type', 'password');
-                $eye.css({
-                    color: "#333"
-                });
+                $eye.css({ color: "#333" });
             }
         });
 
