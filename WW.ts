@@ -7,9 +7,13 @@ export function $$$(ele1: any, ele2: any): WW2;
 export function $$$(ele1: any, ele2: any, ele3: any): WW3;
 export function $$$(ele1: any, ele2: any, ele3: any, ele4: any): WW4;
 export function $$$(ele1: any, ele2: any, ele3: any, ele4: any, ele5: any): WW5;
-export function $$$(ele1: any, ele2?: any, ele3?: any, ele4?: any, ele5?: any) {
-    if(ele2 !== undefined && ele3 !== undefined && ele4 !== undefined && ele5 !== undefined) {
-        // Handle 4 arguments
+export function $$$(ele1: any, ele2: any, ele3: any, ele4: any, ele5: any, ele6: any): WW6;
+export function $$$(ele1: any, ele2?: any, ele3?: any, ele4?: any, ele5?: any, ele6?: any) {
+    if(ele2 !== undefined && ele3 !== undefined && ele4 !== undefined && ele5 !== undefined && ele6 !== undefined) {
+        // Handle 6 arguments
+        return new WW6(ele1, ele2, ele3, ele4, ele5, ele6);
+    } else if(ele2 !== undefined && ele3 !== undefined && ele4 !== undefined && ele5 !== undefined) {
+        // Handle 5 arguments
         return new WW5(ele1, ele2, ele3, ele4, ele5);
     } else if (ele2 !== undefined && ele3 !== undefined && ele4 !== undefined) {
         // Handle 4 arguments
@@ -89,12 +93,30 @@ class WW5 {
         this.ele5 = ele5;
     }
 
-    signup(): Signup {
-        return new Signup(this.ele1, this.ele2, this.ele3, this.ele4, this.ele5);
-    }
-
     formValidate(): FormValidate {
         return new FormValidate(this.ele1, this.ele2, this.ele3, this.ele4, this.ele5);
+    }
+}
+
+class WW6 {
+    protected ele1: any;
+    protected ele2: any;
+    protected ele3: any;
+    protected ele4: any;
+    protected ele5: any;
+    protected ele6: any;
+
+    constructor(ele1: any, ele2: any, ele3: any, ele4: any, ele5: any, ele6: any) {
+        this.ele1 = ele1;
+        this.ele2 = ele2;
+        this.ele3 = ele3;
+        this.ele4 = ele4;
+        this.ele5 = ele5;
+        this.ele6 = ele6;
+    }
+
+    signup(): Signup {
+        return new Signup(this.ele1, this.ele2, this.ele3, this.ele4, this.ele5, this.ele6);
     }
 }
 
@@ -163,25 +185,33 @@ class FormValidate extends WW5 {
     }
 }
 
-class Signup extends WW5 {
+class Signup extends WW6 {
     username: string;
     email: string;
     password: string;
     error: string;
     submit: string;
+    url: {
+        signup: string,
+        create: string
+    };
     $username: JQuery<HTMLElement>;
     $email: JQuery<HTMLElement>;
     $password: JQuery<HTMLElement>;
     $error: JQuery<HTMLElement>;
     $submit: JQuery<HTMLElement>;
 
-    constructor(username: string, email: string, password: string, error: string, submit: string) {
-        super(username, email, password, error, submit);
+    constructor(username: string, email: string, password: string, error: string, submit: string, url: {
+        signup: string,
+        create: string
+    }) {
+        super(username, email, password, error, submit, url);
         this.username = username;
         this.email = email;
         this.password = password;
         this.error = error;
         this.submit = submit;
+        this.url = url;
         this.$username = $(this.username);
         this.$email = $(this.email);
         this.$password = $(this.password);
@@ -206,7 +236,7 @@ class Signup extends WW5 {
                     } else {
                         this.$error.html("");
                         $.ajax({
-                            url: "/data/signup.php",
+                            url: this.url.signup,
                             method: "POST",
                             dataType: "json",
                             data: {
@@ -315,8 +345,7 @@ class Signup extends WW5 {
     }
 
     createFiles(username: string): void {
-        $$$("/data/update.php", {
-            type: 'create',
+        $$$(this.url.create, {
             username: username
         }).api().post();
     }
