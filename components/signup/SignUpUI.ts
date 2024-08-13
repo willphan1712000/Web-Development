@@ -40,7 +40,7 @@ export default class SignUpUI {
         this.passwordBox = new Password(ui['password'], this);
         this.emailBox = new Email(ui['email'], this);
         this.checkBox = new CheckBox(ui['checkbox'], this);
-        this.error = new Error(ui['error'], this);
+        this.error = new Error(ui['error']);
         this.register = new Register(ui['register'], this);
         this.url = url;
         this.success = success;
@@ -49,6 +49,26 @@ export default class SignUpUI {
     public update(): void {
         // Handle logic, when user fill all information and all information should be valid before submitting to database
         this.register.enabled(this.usernameBox.isFilled() && this.passwordBox.isValidPassword() && this.emailBox.isValidEmail() && this.checkBox.isChecked());
+        // Real time error message update
+        if(!this.usernameBox.isFilled()) {
+            this.error.setError("Please enter username");
+        } else if(!this.emailBox.isValidEmail()) {
+            this.error.setError("Email is not valid");
+        } else if(!this.passwordBox.isValidPassword()) {
+            this.error.setError("Password is not valid");
+        } else if(!this.checkBox.isChecked()) {
+            this.error.setError("Please check terms and conditions");
+        } else {
+            this.error.setError(`<i style="color: green;
+                                border: solid green 1px;
+                                border-radius: 50%;
+                                padding: 10px;
+                                width: 40px;
+                                height: 40px;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;" class="fa-solid fa-check"></i>`);
+        }
     }
 
     public async signup(): Promise<void> {

@@ -3,7 +3,7 @@ import SignUpUI from "./SignUpUI";
 export default class Error {
     private $error: JQuery<HTMLElement>;
 
-    constructor(error: string, signUpUI: SignUpUI) {
+    constructor(error: string) {
         this.$error = $(error);
     }
 
