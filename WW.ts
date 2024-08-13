@@ -1,6 +1,8 @@
 // WW.js is module created by Will - Thanh Nha Phan - Kennesaw State University
 // This module helps backend development to be easily deployed
 
+import SignUpUI from "./components/signup/SignUpUI";
+
 // Method overloads
 export function $$$(ele1: any): WW1;
 export function $$$(ele1: any, ele2: any): WW2;
@@ -62,6 +64,10 @@ class WW3 {
         this.ele2 = ele2;
         this.ele3 = ele3;
     }
+
+    signup(): Signup {
+        return new Signup(this.ele1, this.ele2, this.ele3);
+    }
 }
 
 class WW4 {
@@ -113,10 +119,6 @@ class WW6 {
         this.ele4 = ele4;
         this.ele5 = ele5;
         this.ele6 = ele6;
-    }
-
-    signup(): Signup {
-        return new Signup(this.ele1, this.ele2, this.ele3, this.ele4, this.ele5, this.ele6);
     }
 }
 
@@ -185,171 +187,195 @@ class FormValidate extends WW5 {
     }
 }
 
-class Signup extends WW6 {
-    username: string;
-    email: string;
-    password: string;
-    error: string;
-    submit: string;
-    url: {
+class Signup extends WW3 {
+    private signUpUI: SignUpUI;
+    constructor(ui: {
+        username: string,
+        password: string,
+        email: string,
+        checkbox: string,
+        register: string,
+        error: string
+    }, url: {
         signup: string,
-        create: string
-    };
-    $username: JQuery<HTMLElement>;
-    $email: JQuery<HTMLElement>;
-    $password: JQuery<HTMLElement>;
-    $error: JQuery<HTMLElement>;
-    $submit: JQuery<HTMLElement>;
-
-    constructor(username: string, email: string, password: string, error: string, submit: string, url: {
-        signup: string,
-        create: string
+        create?: string
+    }, success: {
+        before: string,
+        after: string,
+        beforeClass: string,
+        afterClass: string
     }) {
-        super(username, email, password, error, submit, url);
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.error = error;
-        this.submit = submit;
-        this.url = url;
-        this.$username = $(this.username);
-        this.$email = $(this.email);
-        this.$password = $(this.password);
-        this.$error = $(this.error);
-        this.$submit = $(this.submit);
+        super(ui, url, success);
+        this.signUpUI = new SignUpUI(ui, url, success);
     }
-
-    run(): void {
-        this.$submit.on("click", (e: JQuery.Event) => {
-            e.preventDefault();
-            if (this.isFillAll(this.$username.val() as string, this.$email.val() as string, this.$password.val() as string)) {
-                this.$error.html("Please fill in all information!");
-                this.shakingErrorMsg(this.$error);
-            } else {
-                if (!this.isValidEmail(this.$email.val() as string)) {
-                    this.$error.html("The email is not valid!");
-                    this.shakingErrorMsg(this.$error);
-                } else {
-                    if (!this.isValidPassword(this.$password.val() as string)) {
-                        this.$error.html("The password is not valid!");
-                        this.shakingErrorMsg(this.$error);
-                    } else {
-                        this.$error.html("");
-                        $.ajax({
-                            url: this.url.signup,
-                            method: "POST",
-                            dataType: "json",
-                            data: {
-                                username: this.removeSpace(this.$username.val() as string),
-                                email: this.$email.val() as string,
-                                password: this.$password.val() as string
-                            },
-                            success: (e: any) => {
-                                if (e[0]) {
-                                    this.$error.html("The username has already been taken!");
-                                    this.shakingErrorMsg(this.$error);
-                                } else {
-                                    if (!e[1]) {
-                                        this.$error.html("The email is not valid!");
-                                        this.shakingErrorMsg(this.$error);
-                                    } else {
-                                        if (!(e[2] && e[3] && e[4] && e[5])) {
-                                            this.$error.html("There is an error, try again!");
-                                            this.shakingErrorMsg(this.$error);
-                                        } else {
-                                            this.signUpSuccess(".signupChild", "inactive", ".signupSuccess", "active");
-                                            // Optional operation
-                                            this.createFiles(this.removeSpace(this.$username.val() as string));
-                                        }
-                                    }
-                                }
-                            },
-                            error: () => {
-                                this.$error.html("The server has internal error!");
-                                this.shakingErrorMsg(this.$error);
-                            }
-                        });
-                    }
-                }
-            }
-        });
-    }
-
-    isFillAll(username: string, email: string, password: string): boolean {
-        return !(username && email && password);
-    }
-
-    isValidEmail(email: string): boolean {
-        // Regular expression for a basic email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        // Test the email against the regular expression
-        return emailRegex.test(email);
-    }
-
-    isValidPassword(password: string): boolean {
-        const isValidLength = password.length >= 12;
-        let hasUpperCase = false;
-        let hasDigit = false;
-        let hasSpecialChar = true; // Bypass special character requirement
-
-        for (let i = 0; i < password.length; i++) {
-            const position = password.charCodeAt(i);
-            if (position >= 65 && position <= 90) {
-                hasUpperCase = true;
-            }
-            if (position >= 48 && position <= 57) {
-                hasDigit = true;
-            }
-            if (position >= 33 && position <= 47) {
-                hasSpecialChar = true;
-            }
-            if (hasUpperCase && hasDigit && hasSpecialChar) {
-                return isValidLength && hasUpperCase && hasDigit && hasSpecialChar;
-            }
-        }
-        return false;
-    }
-
-    removeSpace(text: string): string {
-        return text.replace(/\s+/g, '');
-    }
-
-    shakingErrorMsg(error: JQuery<HTMLElement>): void {
-        const requestAnimationFrame = window.requestAnimationFrame;
-
-        let counter = 0;
-        let x = 0;
-        let dx = -2.5;
-
-        const shaking = () => {
-            counter++;
-            x += dx;
-            if (x <= -15 || x >= 15) {
-                dx = -dx;
-            }
-            const runAnimation = requestAnimationFrame(shaking);
-            if (counter === 30) {
-                cancelAnimationFrame(runAnimation);
-                x = 0;
-            }
-            error.css({
-                transform: `translateX(${x}px)`
-            });
-        };
-        shaking();
-    }
-
-    signUpSuccess(before: string, beforeClass: string, after: string, afterClass: string): void {
-        $(before).addClass(beforeClass);
-        $(after).addClass(afterClass);
-    }
-
-    createFiles(username: string): void {
-        $$$(this.url.create, {
-            username: username
-        }).api().post();
-    }
+    
 }
+
+// class Signups extends WW6 {
+//     username: string;
+//     email: string;
+//     password: string;
+//     error: string;
+//     submit: string;
+//     url: {
+//         signup: string,
+//         create: string
+//     };
+//     $username: JQuery<HTMLElement>;
+//     $email: JQuery<HTMLElement>;
+//     $password: JQuery<HTMLElement>;
+//     $error: JQuery<HTMLElement>;
+//     $submit: JQuery<HTMLElement>;
+
+//     constructor(username: string, email: string, password: string, error: string, submit: string, url: {
+//         signup: string,
+//         create: string
+//     }) {
+//         super(username, email, password, error, submit, url);
+//         this.username = username;
+//         this.email = email;
+//         this.password = password;
+//         this.error = error;
+//         this.submit = submit;
+//         this.url = url;
+//         this.$username = $(this.username);
+//         this.$email = $(this.email);
+//         this.$password = $(this.password);
+//         this.$error = $(this.error);
+//         this.$submit = $(this.submit);
+//     }
+
+//     run(): void {
+//         this.$submit.on("click", (e: JQuery.Event) => {
+//             e.preventDefault();
+//             if (this.isFillAll(this.$username.val() as string, this.$email.val() as string, this.$password.val() as string)) {
+//                 this.$error.html("Please fill in all information!");
+//                 this.shakingErrorMsg(this.$error);
+//             } else {
+//                 if (!this.isValidEmail(this.$email.val() as string)) {
+//                     this.$error.html("The email is not valid!");
+//                     this.shakingErrorMsg(this.$error);
+//                 } else {
+//                     if (!this.isValidPassword(this.$password.val() as string)) {
+//                         this.$error.html("The password is not valid!");
+//                         this.shakingErrorMsg(this.$error);
+//                     } else {
+//                         this.$error.html("");
+//                         $.ajax({
+//                             url: this.url.signup,
+//                             method: "POST",
+//                             dataType: "json",
+//                             data: {
+//                                 username: this.removeSpace(this.$username.val() as string),
+//                                 email: this.$email.val() as string,
+//                                 password: this.$password.val() as string
+//                             },
+//                             success: (e: any) => {
+//                                 if (e[0]) {
+//                                     this.$error.html("The username has already been taken!");
+//                                     this.shakingErrorMsg(this.$error);
+//                                 } else {
+//                                     if (!e[1]) {
+//                                         this.$error.html("The email is not valid!");
+//                                         this.shakingErrorMsg(this.$error);
+//                                     } else {
+//                                         if (!(e[2] && e[3] && e[4] && e[5])) {
+//                                             this.$error.html("There is an error, try again!");
+//                                             this.shakingErrorMsg(this.$error);
+//                                         } else {
+//                                             this.signUpSuccess(".signupChild", "inactive", ".signupSuccess", "active");
+//                                             // Optional operation
+//                                             this.createFiles(this.removeSpace(this.$username.val() as string));
+//                                         }
+//                                     }
+//                                 }
+//                             },
+//                             error: () => {
+//                                 this.$error.html("The server has internal error!");
+//                                 this.shakingErrorMsg(this.$error);
+//                             }
+//                         });
+//                     }
+//                 }
+//             }
+//         });
+//     }
+
+//     isFillAll(username: string, email: string, password: string): boolean {
+//         return !(username && email && password);
+//     }
+
+//     isValidEmail(email: string): boolean {
+//         // Regular expression for a basic email validation
+//         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//         // Test the email against the regular expression
+//         return emailRegex.test(email);
+//     }
+
+//     isValidPassword(password: string): boolean {
+//         const isValidLength = password.length >= 12;
+//         let hasUpperCase = false;
+//         let hasDigit = false;
+//         let hasSpecialChar = true; // Bypass special character requirement
+
+//         for (let i = 0; i < password.length; i++) {
+//             const position = password.charCodeAt(i);
+//             if (position >= 65 && position <= 90) {
+//                 hasUpperCase = true;
+//             }
+//             if (position >= 48 && position <= 57) {
+//                 hasDigit = true;
+//             }
+//             if (position >= 33 && position <= 47) {
+//                 hasSpecialChar = true;
+//             }
+//             if (hasUpperCase && hasDigit && hasSpecialChar) {
+//                 return isValidLength && hasUpperCase && hasDigit && hasSpecialChar;
+//             }
+//         }
+//         return false;
+//     }
+
+//     removeSpace(text: string): string {
+//         return text.replace(/\s+/g, '');
+//     }
+
+//     shakingErrorMsg(error: JQuery<HTMLElement>): void {
+//         const requestAnimationFrame = window.requestAnimationFrame;
+
+//         let counter = 0;
+//         let x = 0;
+//         let dx = -2.5;
+
+//         const shaking = () => {
+//             counter++;
+//             x += dx;
+//             if (x <= -15 || x >= 15) {
+//                 dx = -dx;
+//             }
+//             const runAnimation = requestAnimationFrame(shaking);
+//             if (counter === 30) {
+//                 cancelAnimationFrame(runAnimation);
+//                 x = 0;
+//             }
+//             error.css({
+//                 transform: `translateX(${x}px)`
+//             });
+//         };
+//         shaking();
+//     }
+
+//     signUpSuccess(before: string, beforeClass: string, after: string, afterClass: string): void {
+//         $(before).addClass(beforeClass);
+//         $(after).addClass(afterClass);
+//     }
+
+//     createFiles(username: string): void {
+//         $$$(this.url.create, {
+//             username: username
+//         }).api().post();
+//     }
+// }
 
 class API extends WW2 {
     constructor(src: string, data: object) {

@@ -1,0 +1,66 @@
+import { $$$ } from "../../WW";
+import CheckBox from "./CheckBox";
+import Email from "./Email";
+import Error from "./Error";
+import Password from "./Password";
+import Register from "./Register";
+import Username from "./Username";
+
+interface UI {
+    username: string,
+    password: string,
+    email: string,
+    checkbox: string,
+    register: string,
+    error: string
+}
+interface URL {
+    signup: string,
+    create?: string
+}
+interface Success {
+    before: string,
+    after: string,
+    beforeClass: string,
+    afterClass: string
+}
+
+export default class SignUpUI {
+    private usernameBox: Username;
+    private passwordBox: Password;
+    private emailBox: Email;
+    private checkBox: CheckBox;
+    private error: Error;
+    private register: Register;
+    private url: URL;
+    private success: Success;
+
+    constructor(ui: UI, url: URL, success: Success) {
+        this.usernameBox = new Username(ui['username'], this);
+        this.passwordBox = new Password(ui['password'], this);
+        this.emailBox = new Email(ui['email'], this);
+        this.checkBox = new CheckBox(ui['checkbox'], this);
+        this.error = new Error(ui['error'], this);
+        this.register = new Register(ui['register'], this);
+        this.url = url;
+        this.success = success;
+    }
+
+    public update(): void {
+        // Handle logic, when user fill all information and all information should be valid before submitting to database
+        this.register.enabled(this.usernameBox.isFilled() && this.passwordBox.isValidPassword() && this.emailBox.isValidEmail() && this.checkBox.isChecked());
+    }
+
+    public async signup(): Promise<void> {
+
+        const r = await $$$(this.url.signup, {
+            username: this.usernameBox.getUsername(),
+            password: this.passwordBox.getPassword(),
+            email: this.emailBox.getEmail()
+        }).api().post();
+        if(r) {
+            $(this.success.before).addClass(this.success.beforeClass);
+            $(this.success.after).addClass(this.success.afterClass);
+        }
+    }
+}
