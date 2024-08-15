@@ -25,11 +25,15 @@ export default class Register {
 
     private isEnabledHandling(): void {
         this.$register.prop('disabled', false);
-        this.$register.css("backgroundColor", "#cec3e7");
+        this.$register.css({
+            "backgroundColor": "#cec3e7"
+        });
     }
 
     private isDisabledHandling(): void {
         this.$register.prop('disabled', true);
-        this.$register.css("backgroundColor", "#c6c6c6");
+        this.$register.css({
+            "backgroundColor": "#c6c6c6"
+        });
     }
 }

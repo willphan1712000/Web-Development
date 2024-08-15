@@ -197,8 +197,7 @@ class Signup extends WW3 {
         register: string,
         error: string
     }, url: {
-        signup: string,
-        create?: string
+        signup: string
     }, success: {
         before: string,
         after: string,

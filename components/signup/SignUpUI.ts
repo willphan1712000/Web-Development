@@ -14,10 +14,6 @@ interface UI {
     register: string,
     error: string
 }
-interface URL {
-    signup: string,
-    create?: string
-}
 interface Success {
     before: string,
     after: string,
@@ -32,10 +28,10 @@ export default class SignUpUI {
     private checkBox: CheckBox;
     private error: Error;
     private register: Register;
-    private url: URL;
+    private url: any;
     private success: Success;
 
-    constructor(ui: UI, url: URL, success: Success) {
+    constructor(ui: UI, url: any, success: Success) {
         this.usernameBox = new Username(ui['username'], this);
         this.passwordBox = new Password(ui['password'], this);
         this.emailBox = new Email(ui['email'], this);
@@ -46,11 +42,14 @@ export default class SignUpUI {
         this.success = success;
     }
 
-    public update(): void {
-        // Handle logic, when user fill all information and all information should be valid before submitting to database
-        this.register.enabled(this.usernameBox.isFilled() && this.passwordBox.isValidPassword() && this.emailBox.isValidEmail() && this.checkBox.isChecked());
+    public async update(): Promise<void> {
+        const r = await $$$(this.url.userExist, {
+            username: this.usernameBox.getUsername()
+        }).api().post();
         // Real time error message update
-        if(!this.usernameBox.isFilled()) {
+        if(r) {
+            this.error.setError("Username exists");
+        } else if(!this.usernameBox.isFilled()) {
             this.error.setError("Please enter username");
         } else if(!this.emailBox.isValidEmail()) {
             this.error.setError("Email is not valid");
@@ -63,12 +62,15 @@ export default class SignUpUI {
                                 border: solid green 1px;
                                 border-radius: 50%;
                                 padding: 10px;
-                                width: 40px;
-                                height: 40px;
+                                width: 30px;
+                                height: 30px;
                                 display: flex;
                                 justify-content: center;
                                 align-items: center;" class="fa-solid fa-check"></i>`);
         }
+
+        // Handle logic, when user fill all information and all information should be valid before submitting to database
+        this.register.enabled(!r && this.usernameBox.isFilled() && this.passwordBox.isValidPassword() && this.emailBox.isValidEmail() && this.checkBox.isChecked());
     }
 
     public async signup(): Promise<void> {
