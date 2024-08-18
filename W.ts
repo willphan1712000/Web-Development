@@ -40,9 +40,9 @@ class W1 {
         return new Spinner(this.ele1);
     }
 
-    // public format(): Format {
-    //     return new Format(this.ele1);
-    // }
+    public share(): Share {
+        return new Share(this.ele1);
+    }
 }
 class W2 {
     protected ele1: any;
@@ -105,6 +105,24 @@ class W4 {
 
     public search(): Search {
         return new Search(this.ele1, this.ele2, this.ele3, this.ele4);
+    }
+}
+
+class Share extends W1 {
+    constructor(obj: {
+        title: string,
+        url: string
+    }) {
+        super(obj);
+        this.run();
+    }
+
+    private run() {
+        if(navigator.share) {
+            navigator.share(this.ele1)
+        } else {
+            alert("Share does not support this browser")
+        }
     }
 }
 
