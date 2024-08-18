@@ -138,9 +138,10 @@ class Table extends W3 {
         this.location = location;
         this.header = header;
         this.data = data;
+        this.create();
     }
 
-    public create(): this {
+    private create(): this {
         $(this.location).append('<table><tr></tr></table>');
 
         // Append header
@@ -648,9 +649,10 @@ class Search extends W4 {
     // ele3 is worker address
     constructor(ele1: string, ele2: Data, ele3: string, ele4: () => void) {
         super(ele1, ele2, ele3, ele4);
+        this.run();
     }
 
-    public run() : this {
+    private run() : this {
         const $input = $(this.ele1);
         const location = this.ele2.location;
         const header = this.ele2.header;
@@ -667,7 +669,7 @@ class Search extends W4 {
 
         worker.onmessage = (e) => {
             $(location).empty();
-            $$(location, header, e.data).table().create();
+            $$(location, header, e.data).table();
             this.ele4();
         }
 

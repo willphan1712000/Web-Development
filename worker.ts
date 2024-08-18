@@ -19,7 +19,6 @@ self.onmessage = function(e) {
             postMessage(htmlList)
         }
     }
-
     // This is for search work, which is resource intensive
     else if (e.data.message === "search") {
         const data = e.data.data;
