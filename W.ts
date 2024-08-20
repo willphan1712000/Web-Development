@@ -1,6 +1,8 @@
 // W.js is module created by Will - Thanh Nha Phan - Kennesaw State University
 // This module helps frontend development to be easily deployed
 
+import { $$$ } from "./WW";
+
 // Method overloads
 export function $$(ele1: any): W1;
 export function $$(ele1: any, ele2: any): W2;
@@ -22,7 +24,7 @@ export function $$(ele1: any, ele2?: any, ele3?: any, ele4?: any) {
     }
 }
 
-class W1 {
+export class W1 {
     protected ele1: any;
 
     constructor(ele1: any) {
@@ -44,7 +46,7 @@ class W1 {
         return new Share(this.ele1);
     }
 }
-class W2 {
+export class W2 {
     protected ele1: any;
     protected ele2: any;
 
@@ -64,9 +66,13 @@ class W2 {
     public copyToClipboard(): CopyToClipboard {
         return new CopyToClipboard(this.ele1, this.ele2);
     }
+
+    public table(): Table {
+        return new Table(this.ele1, this.ele2);
+    }
 }
 
-class W3 {
+export class W3 {
     protected ele1: any;
     protected ele2: any;
     protected ele3: any;
@@ -81,8 +87,8 @@ class W3 {
         return new Transform(this.ele1, this.ele2, this.ele3);
     }
 
-    public table(): Table {
-        return new Table(this.ele1, this.ele2, this.ele3);
+    public addIntersectionObserver(): AddIntersectionObserver {
+        return new AddIntersectionObserver(this.ele1, this.ele2, this.ele3);
     }
 
     // public transformDesktop(): TransformDesktop {
@@ -90,7 +96,7 @@ class W3 {
     // }
 }
 
-class W4 {
+export class W4 {
     protected ele1: any;
     protected ele2: any;
     protected ele3: any;
@@ -105,6 +111,47 @@ class W4 {
 
     public search(): Search {
         return new Search(this.ele1, this.ele2, this.ele3, this.ele4);
+    }
+}
+
+class AddIntersectionObserver extends W3 {
+    private observer: any;
+    private target: HTMLElement;
+    private count: number;
+
+    constructor(target: string, options: Object, cb: () => void) {
+        super(target, options, cb);
+
+        this.target = document.querySelector(this.ele1);
+
+        this.observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                this.ele3(entry.isIntersecting, this.count);
+            })
+        }, this.ele2)
+        this.count = 0;
+    }
+
+    public observe() : this {
+        this.observer.observe(this.target);
+        return this;
+    }
+
+    public unobserve() : this {
+        this.observer.unobserve(this.target);
+        return this;
+    }
+
+    public increaseCount() : void {
+        this.count++;
+    }
+
+    public resetCount(): void {
+        this.count = 0;
+    }
+
+    public getCount() : number {
+        return this.count;
     }
 }
 
@@ -126,7 +173,7 @@ class Share extends W1 {
     }
 }
 
-class Table extends W3 {
+class Table extends W2 {
     // Follow the object format
     // header = {
     //     1: a,
@@ -149,17 +196,14 @@ class Table extends W3 {
     // 2 data3 data4
     private location: string;
     private header: {[key: number]: string};
-    private data: {[key: number]: {[key: number]: string}}
 
-    constructor(location: string, header: {[key: number]: string;}, data: {[key: number]: {[key: number]: string}}) {
-        super(location, header, data);
+    constructor(location: string, header: {[key: number]: string;}) {
+        super(location, header);
         this.location = location;
         this.header = header;
-        this.data = data;
-        this.create();
     }
 
-    private create(): this {
+    public addHeader(): this {
         $(this.location).append('<table><tr></tr></table>');
 
         // Append header
@@ -169,20 +213,32 @@ class Table extends W3 {
             }
         }
 
+        return this;
+    }
+
+    public addRow(data: {
+        [key: number]: {
+            [key: number]: string
+        }
+    }): this {
         // Append data rows
-        let counter = 0;
-        for (const dataKey in this.data) {
-            counter++;
-            let row = `<tr><th>${counter}</th>`, eachData = this.data[dataKey];
+        for (const dataKey in data) {
+            let row = `<tr>`, eachData = data[dataKey];
             for (const eachKey in eachData) {
                 row += `<th>${eachData[eachKey]}</th>`;
             }
             row += `</tr>`;
             $(this.location + " table").append(row);
         }
-
+    
         return this;
     }
+
+    public empty() {
+        $(this.location).empty();
+        this.addHeader();
+    }
+
 }
 
 class Spinner extends W1 {
@@ -651,46 +707,126 @@ class CopyToClipboard extends W2 {
 }
 
 interface Data {
-    location: string,
-    header: {
-        [key: number]: string
-    },
-    data: {
-        [key: number]: {
-            [key: number]: string
-        }
+    [key: number]: {
+        [key: string]: string
     }
-};
+}
 class Search extends W4 {
     // ele1 is text input
     // ele2 is data field
     // ele3 is worker address
-    constructor(ele1: string, ele2: Data, ele3: string, ele4: () => void) {
+    
+    constructor(ele1: string, ele2: any, ele3: string, ele4: any) {
         super(ele1, ele2, ele3, ele4);
         this.run();
     }
 
-    private run() : this {
+    private async run() : Promise<this> {
         const $input = $(this.ele1);
-        const location = this.ele2.location;
-        const header = this.ele2.header;
-        const data = this.ele2.data;
-        const worker = new Worker(this.ele3 + "?v=" + (new Date()).getTime());
+        const limit = 50;
         
-        $input.on("input", e => {
-            worker.postMessage({
-                message: "search",
-                input: e.target.value,
-                data: data,
+        const table = await this.initialTable(this.ele2.tableContainer, limit); // initial fetch table with 50 rows
+        const observer = this.addObserver(this.ele2.targetObserver, limit, table); // add intersection observer
+        
+        $input.on("input", async e => {
+            const v = e.target.value;
+            const data = await this.getData({
+                limit,
+                like: v
             });
+            
+            if(v === "") {
+                observer.resetCount();
+                observer.observe();
+            } else {
+                observer.unobserve();
+            }
+            table.empty();
+            this.addRow(table, data, true);
         })
-
-        worker.onmessage = (e) => {
-            $(location).empty();
-            $$(location, header, e.data).table();
-            this.ele4();
-        }
 
         return this;
     }
+
+    private async getData(options: Object) : Promise<Data> {
+        const data = await $$$(this.ele3, options).api().post() as Data;
+        // add bio, admin, and delete for each user
+        for(const i in data) {
+            data[i].a = '<a target="_blank" href="/'+data[i].username+'" style="color: #000;">Bio</a>'
+            data[i].admin = '<a target="_blank" href="/'+data[i].username+'/admin" style="color: #000;">Admin</a>'
+            data[i].delete = '<button value="'+data[i].username+'">Delete</button>'
+        }
+        return data;
+    }
+
+    private async initialTable(tableContainer: string, limit: number) : Promise<Table> {
+        const header = this.ele2.header;
+
+         const data = await this.getData({
+            limit,
+            offset: 0,
+         });
+        
+         // Create initial table
+         const table = $$(tableContainer, header).table().addHeader();
+         this.addRow(table, data, false);
+         return table;
+    }
+
+    private addObserver(target: string, limit: number, table: Table) : AddIntersectionObserver {
+        const o = $$(target, {
+             threshold: 1
+         }, async (e : boolean) => {
+             if(e) {
+                 o.increaseCount();
+                 const data = await this.getData({
+                    limit,
+                    offset: limit * o.getCount()
+                });
+                this.addRow(table, data, true);
+             }
+         }).addIntersectionObserver().observe();
+         return o;
+    }
+
+    private addRow(table: Table, data: Data, search: boolean) {
+        table.addRow(data);
+        this.handleClick(search);
+    }
+
+    private handleClick(search: boolean) {
+        const html = this.ele4;
+        if(search) {
+            $(html.button).off("click", e => {
+                return null;
+            });
+            $(html.confirm).off("click", e => {
+                return null;
+            });
+            $(html.back).off("click", e => {
+                return null;
+            });
+        }
+
+        $(html.button).click(function(e) {
+            $(html.parent).addClass("active")
+            let currentUsernameElement = e.currentTarget as HTMLInputElement;
+            let currentUsernameValue = "";
+            currentUsernameValue = currentUsernameElement.value;
+            
+            $(html.confirm).click(async function() {
+                const r = await $$$("/data/api/deleteAccount.php", {
+                    username: currentUsernameValue,
+                }).api().post();
+                if(r) {
+                    location.reload();
+                }
+            })
+
+            $(html.back).click(() => {
+                $(html.parent).removeClass("active");
+                currentUsernameValue = "";
+            });
+        })
+   }
 }

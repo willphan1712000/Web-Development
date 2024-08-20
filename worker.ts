@@ -1,10 +1,4 @@
-self.onmessage = function(e) {
-    interface Data {
-        [key: number]: {
-            [key: number]: string
-        }
-    };
-
+self.onmessage = async function(e) {
     if(e.data.message === "countryCode") {
         let htmlList = '', value = e.data.value, data = e.data.data, iniHtmlList = e.data.iniHtmlList
         if(value === '') {
@@ -18,18 +12,5 @@ self.onmessage = function(e) {
             }
             postMessage(htmlList)
         }
-    }
-    // This is for search work, which is resource intensive
-    else if (e.data.message === "search") {
-        const data = e.data.data;
-        const input = e.data.input;
-        const result: Data = {};
-        for(const i in data) {
-            const index = Number(i);
-            if(data[i].username.toLowerCase().includes(input.toLowerCase()) || data[i].email.toLowerCase().includes(input.toLowerCase())) {
-                result[index] = data[i];
-            }
-        }
-        postMessage(result);
     }
 }
