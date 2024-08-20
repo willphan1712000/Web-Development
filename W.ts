@@ -713,5 +713,6 @@ class Search extends W2 {
     constructor(ele1: any, ele2: any) {
         super(ele1, ele2);
         this.searchUI = new SearchUI(this.ele1, this.ele2);
+        
     }
 }
