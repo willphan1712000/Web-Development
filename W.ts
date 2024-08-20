@@ -1,6 +1,7 @@
 // W.js is module created by Will - Thanh Nha Phan - Kennesaw State University
 // This module helps frontend development to be easily deployed
 
+import SearchUI from "./components/search/SearchUI";
 import { $$$ } from "./WW";
 
 // Method overloads
@@ -70,6 +71,10 @@ export class W2 {
     public table(): Table {
         return new Table(this.ele1, this.ele2);
     }
+
+    public search(): Search {
+        return new Search(this.ele1, this.ele2);
+    }
 }
 
 export class W3 {
@@ -108,13 +113,9 @@ export class W4 {
         this.ele3 = ele3;
         this.ele4 = ele4;
     }
-
-    public search(): Search {
-        return new Search(this.ele1, this.ele2, this.ele3, this.ele4);
-    }
 }
 
-class AddIntersectionObserver extends W3 {
+export class AddIntersectionObserver extends W3 {
     private observer: any;
     private target: HTMLElement;
     private count: number;
@@ -173,7 +174,7 @@ class Share extends W1 {
     }
 }
 
-class Table extends W2 {
+export class Table extends W2 {
     // Follow the object format
     // header = {
     //     1: a,
@@ -706,127 +707,11 @@ class CopyToClipboard extends W2 {
     }
 }
 
-interface Data {
-    [key: number]: {
-        [key: string]: string
-    }
-}
-class Search extends W4 {
-    // ele1 is text input
-    // ele2 is data field
-    // ele3 is worker address
+class Search extends W2 {
+    private searchUI: SearchUI
     
-    constructor(ele1: string, ele2: any, ele3: string, ele4: any) {
-        super(ele1, ele2, ele3, ele4);
-        this.run();
+    constructor(ele1: any, ele2: any) {
+        super(ele1, ele2);
+        this.searchUI = new SearchUI(this.ele1, this.ele2);
     }
-
-    private async run() : Promise<this> {
-        const $input = $(this.ele1);
-        const limit = 50;
-        
-        const table = await this.initialTable(this.ele2.tableContainer, limit); // initial fetch table with 50 rows
-        const observer = this.addObserver(this.ele2.targetObserver, limit, table); // add intersection observer
-        
-        $input.on("input", async e => {
-            const v = e.target.value;
-            const data = await this.getData({
-                limit,
-                like: v
-            });
-            
-            if(v === "") {
-                observer.resetCount();
-                observer.observe();
-            } else {
-                observer.unobserve();
-            }
-            table.empty();
-            this.addRow(table, data, true);
-        })
-
-        return this;
-    }
-
-    private async getData(options: Object) : Promise<Data> {
-        const data = await $$$(this.ele3, options).api().post() as Data;
-        // add bio, admin, and delete for each user
-        for(const i in data) {
-            data[i].a = '<a target="_blank" href="/'+data[i].username+'" style="color: #000;">Bio</a>'
-            data[i].admin = '<a target="_blank" href="/'+data[i].username+'/admin" style="color: #000;">Admin</a>'
-            data[i].delete = '<button value="'+data[i].username+'">Delete</button>'
-        }
-        return data;
-    }
-
-    private async initialTable(tableContainer: string, limit: number) : Promise<Table> {
-        const header = this.ele2.header;
-
-         const data = await this.getData({
-            limit,
-            offset: 0,
-         });
-        
-         // Create initial table
-         const table = $$(tableContainer, header).table().addHeader();
-         this.addRow(table, data, false);
-         return table;
-    }
-
-    private addObserver(target: string, limit: number, table: Table) : AddIntersectionObserver {
-        const o = $$(target, {
-             threshold: 1
-         }, async (e : boolean) => {
-             if(e) {
-                 o.increaseCount();
-                 const data = await this.getData({
-                    limit,
-                    offset: limit * o.getCount()
-                });
-                this.addRow(table, data, true);
-             }
-         }).addIntersectionObserver().observe();
-         return o;
-    }
-
-    private addRow(table: Table, data: Data, search: boolean) {
-        table.addRow(data);
-        this.handleClick(search);
-    }
-
-    private handleClick(search: boolean) {
-        const html = this.ele4;
-        if(search) {
-            $(html.button).off("click", e => {
-                return null;
-            });
-            $(html.confirm).off("click", e => {
-                return null;
-            });
-            $(html.back).off("click", e => {
-                return null;
-            });
-        }
-
-        $(html.button).click(function(e) {
-            $(html.parent).addClass("active")
-            let currentUsernameElement = e.currentTarget as HTMLInputElement;
-            let currentUsernameValue = "";
-            currentUsernameValue = currentUsernameElement.value;
-            
-            $(html.confirm).click(async function() {
-                const r = await $$$("/data/api/deleteAccount.php", {
-                    username: currentUsernameValue,
-                }).api().post();
-                if(r) {
-                    location.reload();
-                }
-            })
-
-            $(html.back).click(() => {
-                $(html.parent).removeClass("active");
-                currentUsernameValue = "";
-            });
-        })
-   }
 }
