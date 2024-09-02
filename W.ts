@@ -2,7 +2,7 @@
 // This module helps frontend development to be easily deployed
 
 import SearchUI from "./components/search/SearchUI";
-import { $$$ } from "./WW";
+import ColorPicker from "./components/colorPicker/ColorPicker";
 
 // Method overloads
 export function $$(ele1: any): W1;
@@ -45,6 +45,10 @@ export class W1 {
 
     public share(): Share {
         return new Share(this.ele1);
+    }
+
+    public colorPicker(cb: (e: any) => void, options: any | null = null): ColorPicker {
+        return new ColorPicker(this.ele1, cb, options);
     }
 }
 export class W2 {
