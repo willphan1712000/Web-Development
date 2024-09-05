@@ -2,7 +2,10 @@
 // This module helps frontend development to be easily deployed
 
 import SearchUI from "./components/search/SearchUI";
-import ColorPicker from "./components/colorPicker/ColorPicker";
+import { RangeSliderOptions, RangeSlider } from "./components/rangeSlider/RangeSlider";
+import { ColorPicker, ColorPickerOptions } from "./components/colorPicker/ColorPicker";
+import ColorPickerSingle from "./components/colorPicker/ColorPickerSingle";
+import ColorPickerDouble from "./components/colorPicker/ColorPickerDouble";
 
 // Method overloads
 export function $$(ele1: any): W1;
@@ -47,8 +50,16 @@ export class W1 {
         return new Share(this.ele1);
     }
 
-    public colorPicker(cb: (e: any) => void, options: any | null = null): ColorPicker {
-        return new ColorPicker(this.ele1, cb, options);
+    public colorPickerSingle(cb: (e: any) => void, options: ColorPickerOptions): ColorPicker {
+        return new ColorPickerSingle(this.ele1, cb, options);
+    }
+
+    public colorPickerDouble(cb: (e: any) => void, options: ColorPickerOptions): ColorPicker {
+        return new ColorPickerDouble(this.ele1, cb, options);
+    }
+
+    public rangeSlider(cb: (e: any) => void, options: RangeSliderOptions): RangeSlider {
+        return new RangeSlider(this.ele1, cb, options);
     }
 }
 export class W2 {
