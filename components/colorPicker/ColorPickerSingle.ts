@@ -3,13 +3,13 @@ import { ColorPicker, ColorPickerOptions } from "./ColorPicker";
 export default class ColorPickerSingle implements ColorPicker {
     private color: string;
     private container: string;
-    private options: any | null;
+    private options: ColorPickerOptions;
 
     constructor(container: string, cb: (e: any) => void, options: ColorPickerOptions) {
         this.options = options;
         this.container = container;
         this.color = options.default;
-        this.css();
+
         this.render();
 
         const $container = $(this.container);
@@ -54,11 +54,15 @@ export default class ColorPickerSingle implements ColorPicker {
     }
 
     private render() {
+        const style = document.createElement("style");
+        style.textContent = this.css();
+        document.head.append(style);
+        
         const $container = $(this.container);
         $container.append(this.html());
     }
 
-    private html() {
+    private html() : string {
         return `
             <div class="colorPickerBox">
                 <div class="colorPickerBox__reset">
@@ -71,8 +75,8 @@ export default class ColorPickerSingle implements ColorPicker {
         `;
     }
 
-    private css() {
-        const css = `
+    private css(): string {
+        return `
             ${this.container} {
                 position: relative;
             }
@@ -125,9 +129,5 @@ export default class ColorPickerSingle implements ColorPicker {
                 border: none;
             }
         `;
-
-        const style = document.createElement("style");
-        style.textContent = css;
-        document.head.append(style);
     }
 }

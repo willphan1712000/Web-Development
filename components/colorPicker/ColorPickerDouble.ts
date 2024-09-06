@@ -6,7 +6,7 @@ export default class ColorPickerDouble implements ColorPicker {
     private color: string;
     private gradient: Gradient;
     private container: string;
-    private options: any | null;
+    private options: ColorPickerOptions;
 
     constructor(container: string, cb: (e: any) => void, options: ColorPickerOptions) {
         this.options = options;
@@ -17,7 +17,7 @@ export default class ColorPickerDouble implements ColorPicker {
             color2: "0",
             deg: "0"
         }
-        this.css();
+        
         this.render();
 
         const $container = $(this.container);
@@ -78,11 +78,15 @@ export default class ColorPickerDouble implements ColorPicker {
     }
 
     private render() {
+        const style = document.createElement("style");
+        style.textContent = this.css();
+
+        document.head.append(style);
         const $container = $(this.container);
         $container.append(this.html());
     }
 
-    private html() {
+    private html(): string {
         return `
             <div class="colorPickerBox">
                 <div class="colorPickerBox__reset">
@@ -97,8 +101,8 @@ export default class ColorPickerDouble implements ColorPicker {
         `;
     }
 
-    private css() {
-        const css = `
+    private css() : string {
+        return `
             ${this.container} {
                 position: relative;
             }
@@ -151,10 +155,6 @@ export default class ColorPickerDouble implements ColorPicker {
                 border: none;
             }
         `;
-
-        const style = document.createElement("style");
-        style.textContent = css;
-        document.head.append(style);
     }
 
     private hslToHex(h: number, s: number, l: number) : string {

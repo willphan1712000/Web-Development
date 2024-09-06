@@ -6,6 +6,7 @@ import { RangeSliderOptions, RangeSlider } from "./components/rangeSlider/RangeS
 import { ColorPicker, ColorPickerOptions } from "./components/colorPicker/ColorPicker";
 import ColorPickerSingle from "./components/colorPicker/ColorPickerSingle";
 import ColorPickerDouble from "./components/colorPicker/ColorPickerDouble";
+import { Options, OptionsOption } from "./components/options/Options";
 
 // Method overloads
 export function $$(ele1: any): W1;
@@ -60,6 +61,10 @@ export class W1 {
 
     public rangeSlider(cb: (e: any) => void, options: RangeSliderOptions): RangeSlider {
         return new RangeSlider(this.ele1, cb, options);
+    }
+
+    public options(cb: (e: any) => void, options: OptionsOption): Options {
+        return new Options(this.ele1, cb, options);
     }
 }
 export class W2 {

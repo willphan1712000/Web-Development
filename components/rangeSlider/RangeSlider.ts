@@ -14,7 +14,6 @@ export class RangeSlider {
         this.value = this.options?.default;
         this.container = container;
 
-        this.css();
         this.render();
 
         const $container = $(this.container);
@@ -66,11 +65,15 @@ export class RangeSlider {
     }
 
     private render() {
+        const style = document.createElement("style");
+        style.textContent = this.css();
+        document.head.append(style);
+
         const $container = $(this.container);
         $container.append(this.html());
     }
 
-    private html() {
+    private html() : string {
         return `
             <div class="rangeSliderBox">
                 <div class="rangeSliderBox__reset">
@@ -84,8 +87,8 @@ export class RangeSlider {
         `;
     }
 
-    private css() {
-        const css = `
+    private css() : string {
+        return `
             ${this.container} {
                 position: relative;
             }
@@ -129,9 +132,5 @@ export class RangeSlider {
                 border: none;
             }
         `;
-
-        const style = document.createElement("style");
-        style.textContent = css;
-        document.head.append(style);
     }
 }
