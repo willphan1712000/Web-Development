@@ -104,7 +104,8 @@ export class RangeSlider {
                 background: #fff;
                 border-radius: 20px;
                 padding: 10px;
-                box-shadow: rgba(99, 99, 99, 0.2) 0px 2px ;
+                box-shadow: rgba(99, 99, 99, 0.2) 0px 2px;
+                z-index: 1;
             }
             ${this.container} .rangeSliderBox__reset {
                 display: ${this.options?.default == null ? "none" : "flex"};

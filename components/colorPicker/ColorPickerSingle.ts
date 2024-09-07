@@ -1,35 +1,20 @@
 import { ColorPicker, ColorPickerOptions } from "./ColorPicker";
+import { ColorPickerParent } from "./ColorPickerParent";
 
-export default class ColorPickerSingle implements ColorPicker {
+export default class ColorPickerSingle extends ColorPickerParent implements ColorPicker {
     private color: string;
     private container: string;
     private options: ColorPickerOptions;
 
     constructor(container: string, cb: (e: any) => void, options: ColorPickerOptions) {
+        super();
         this.options = options;
         this.container = container;
         this.color = options.default;
 
-        this.render();
+        this.render(); // render the color picker
 
-        const $container = $(this.container);
-        const $colorPicker = $(this.container + " .colorPickerBox");
-        $container.click(e => {
-            e.stopPropagation();
-            if ($colorPicker.css('display') === 'none') {
-                $colorPicker.css('display', 'flex');
-            } else {
-                $colorPicker.css('display', 'none');
-            }
-        })
-        $("body").click(e => {
-            e.stopPropagation();
-            $colorPicker.css('display', 'none')
-        })
-        $colorPicker.click(e => {
-            e.stopPropagation();
-            $colorPicker.css('display', 'flex');
-        })
+        this.clickBehavior(this.container); // set click behavior for color picker
 
         const color = document.querySelector(this.container + " #color") as HTMLInputElement;
         color.addEventListener("input", e => {
@@ -38,7 +23,7 @@ export default class ColorPickerSingle implements ColorPicker {
             cb(this.getColor());
         })
 
-        $(".colorPickerBox__reset").click(e => {
+        $(this.container + " .colorPickerBox__reset").click(e => {
             e.stopPropagation();
             this.color = this.options.default
             cb(this.getColor());
@@ -46,11 +31,11 @@ export default class ColorPickerSingle implements ColorPicker {
     }
 
     public getColor(): string {
-        return this.color
+        return this.color;
     }
 
     private setColor(color: string): void {
-        this.color = color
+        this.color = this.hslToHex(Number(color), 100, 80);
     }
 
     private render() {
@@ -69,7 +54,7 @@ export default class ColorPickerSingle implements ColorPicker {
                     <span>Reset</span>
                 </div>
                 <div class="colorPickerBox__input">
-                    <input id="color1" class="color1" type="range" min="0" max="360" value="0">
+                    <input id="color" class="color" type="range" min="0" max="360" value="0">
                 </div>
             </div>
         `;
@@ -109,7 +94,7 @@ export default class ColorPickerSingle implements ColorPicker {
                 justify-content: space-between;
                 gap: 10px;
             }
-            ${this.container} .colorPickerBox .color1, ${this.container} .colorPickerBox .color2 {
+            ${this.container} .colorPickerBox .color {
                 -webkit-appearance: none;
                 appearance: none;
                 height: 10px;
