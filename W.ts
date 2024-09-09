@@ -7,6 +7,8 @@ import { ColorPicker, ColorPickerOptions } from "./components/colorPicker/ColorP
 import ColorPickerSingle from "./components/colorPicker/ColorPickerSingle";
 import ColorPickerDouble from "./components/colorPicker/ColorPickerDouble";
 import { Options, OptionsOption } from "./components/options/Options";
+import Transform from "./components/Transform/Transform";
+import UploadFile from "./components/upload/UploadFile";
 
 // Method overloads
 export function $$(ele1: any): W1;
@@ -40,7 +42,7 @@ export class W1 {
     }
 
     public transform(): Transform {
-        return new Transform(this.ele1, undefined, undefined);
+        return new Transform(this.ele1);
     }
 
     public addSpinner(): Spinner {
@@ -66,6 +68,10 @@ export class W1 {
     public options(cb: (e: any) => void, options: OptionsOption): Options {
         return new Options(this.ele1, cb, options);
     }
+
+    public uploadFile(cb: (e: any) => void): UploadFile {
+        return new UploadFile(this.ele1, cb);
+    }
 }
 export class W2 {
     protected ele1: any;
@@ -80,10 +86,6 @@ export class W2 {
         return new Toggle(this.ele1, this.ele2);
     }
 
-    public upload(): Upload {
-        return new Upload(this.ele1, this.ele2);
-    }
-
     public copyToClipboard(): CopyToClipboard {
         return new CopyToClipboard(this.ele1, this.ele2);
     }
@@ -94,6 +96,10 @@ export class W2 {
 
     public search(): Search {
         return new Search(this.ele1, this.ele2);
+    }
+
+    public transform(): Transform {
+        return new Transform(this.ele1, this.ele2);
     }
 }
 
@@ -115,10 +121,6 @@ export class W3 {
     public addIntersectionObserver(): AddIntersectionObserver {
         return new AddIntersectionObserver(this.ele1, this.ele2, this.ele3);
     }
-
-    // public transformDesktop(): TransformDesktop {
-    //     return new TransformDesktop(this.ele1, this.ele2, this.ele3);
-    // }
 }
 
 export class W4 {
@@ -360,67 +362,6 @@ class PassShowHide extends W1 {
     }
 }
 
-class Upload extends W2 {
-    private $ele1: JQuery<HTMLElement>;
-    private $ele2: JQuery<HTMLElement>;
-
-    constructor(ele1: string, ele2: string) {
-        super(ele1, ele2);
-        this.$ele1 = $(this.ele1);
-        this.$ele2 = $(this.ele2);
-    }
-
-    public openFile(): this {
-        this.$ele1.click(e => {
-            e.stopPropagation();
-            this.$ele2.click();
-        });
-        return this;
-    }
-
-    public fileHandling(e: Event, cb: (src: string) => void): void {
-        const target = e.target as HTMLInputElement;
-        const file = target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (readerEvent) => {
-                const imgElement = document.createElement("img");
-                imgElement.src = readerEvent.target?.result as string;
-                imgElement.onload = (imgEvent) => {
-                    cb((imgEvent.target as HTMLImageElement).src);
-                };
-            };
-        }
-    }
-
-    public drawImage(e: any, x: number, y: number, scale: number, angle: number, canvasWidth: number, canvasHeight: number, containerWidth: number, containerHeight: number): string {
-        const canvas = document.createElement("canvas");
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
-        const ctx = canvas.getContext("2d");
-
-        if (!ctx) {
-            throw new Error("Unable to get canvas context");
-        }
-
-        const ratioX = canvasWidth / containerWidth;
-        const ratioY = canvasHeight / containerHeight;
-        const finalX = x * ratioX;
-        const finalY = y * ratioY;
-        const midleWidth = e.width * ratioX;
-        const midleHeight = e.height * ratioY;
-        const finalWidth = e.width * ratioX * scale;
-        const finalHeight = e.height * ratioY * scale;
-
-        ctx.translate(finalX + midleWidth / 2, finalY + midleHeight / 2);
-        ctx.rotate((angle * Math.PI) / 180);
-        ctx.drawImage(e, -finalWidth / 2, -finalHeight / 2, finalWidth, finalHeight);
-        const srcEncoded = ctx.canvas.toDataURL(e).split(",")[1];
-        return srcEncoded;
-    }
-}
-
 class Toggle extends W2 {
 
     constructor(ele1: string, ele2: string) {
@@ -431,284 +372,6 @@ class Toggle extends W2 {
         $(this.ele1).click((e) => {
             $(e.currentTarget).toggleClass(this.ele2);
         });
-        return this;
-    }
-}
-
-class Transform {
-    private ele1: string;
-    private ele2: string | undefined;
-    private collided: boolean;
-    private deleted: boolean;
-    private x: number;
-    private y: number;
-    private angle: number;
-    private w: number;
-    private h: number;
-    private controllerClassName: string;
-    private css: string;
-    private controllerTemplate: string;
-    private ratio: number;
-    private  isRotateOffScreen: boolean;
-    private $ele2: JQuery<HTMLElement>;
-    private imgFrame: HTMLElement | null;
-    private thisObject: Transform;
-
-    constructor(ele1: string, ele2: string | undefined, ele3: string | undefined) {
-        this.ele1 = ele1;
-        this.ele2 = ele2;
-        this.collided = false;
-        this.deleted = true;
-        this.x = 0;
-        this.y = 0;
-        this.angle = 0;
-        this.w = 0;
-        this.h = 0;
-        this.$ele2 = $(ele2!);
-        this.imgFrame = document.querySelector(ele2!);
-        this.controllerClassName = this.ele1.substring(1) + '--controller';
-        this.isRotateOffScreen = false;
-        this.thisObject = this;
-
-        const img = document.querySelector(this.ele1 + " > img") as HTMLImageElement;
-        this.ratio = img.width / img.height;
-
-        this.css = `
-            ${this.ele1} {
-                position: absolute;
-                transform-origin: top left;
-                user-select: none;
-            }
-            ${this.ele1} > img {
-                object-fit: contain;
-                position: absolute;
-                top: 0;
-                left: 0;
-                display: block;
-                z-index: 1;
-                transform: translate(-50%, -50%)
-            }
-            .${this.controllerClassName}--container {
-                position: absolute;
-                transform-origin: top left;
-                user-select: none;
-            }
-            .${this.controllerClassName} {
-                position: absolute;
-                user-select: none;
-                border: solid 3px #6924d5;
-                z-index: 1;
-                top: 0;
-                left: 0;
-                transform: translate(-50%, -50%);
-            }
-            .${this.controllerClassName} .resize {
-                background-color: #fff;
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-                transition: all .1s linear;
-            }
-            .${this.controllerClassName} .resize.show {
-                background-color: #6924d5;
-            }
-            .${this.controllerClassName} .resize > .circle {
-                background-color: #f0f0f0a8;
-                position: absolute;
-                top: -15px;
-                left: -15px;
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-                z-index: -1;
-                visibility: hidden;
-                transition: all .1s linear;
-            }
-            .${this.controllerClassName} .resize > .circle.show {
-                visibility: visible;
-            }
-            .${this.controllerClassName} .resize.resize-topleft {
-                position: absolute;
-                top: -10px;
-                left: -10px;
-            }
-            .${this.controllerClassName} .resize.resize-topright {
-                position: absolute;
-                top: -10px;
-                right: -10px;
-            }
-            .${this.controllerClassName} .resize.resize-bottomleft {
-                position: absolute;
-                bottom: -10px;
-                left: -10px;
-            }
-            .${this.controllerClassName} .resize.resize-bottomright {
-                position: absolute;
-                bottom: -10px;
-                right: -10px;
-            }
-            .${this.controllerClassName} .rotate {
-                position: absolute;
-                top: -50px;
-                left: calc(50% - 15px);
-                width: 30px;
-                height: 30px;
-                background-color: #fff;
-                border-radius: 50%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-            .${this.controllerClassName} .delete {
-                position: absolute;
-                bottom: -50px;
-                left: calc(50% + 40px);
-                width: 30px;
-                height: 30px;
-                background-color: #fff;
-                border-radius: 50%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-        `;
-
-        this.controllerTemplate = `
-            <div class="${this.controllerClassName}--container">
-                <div class="${this.controllerClassName}">
-                    <div class="dot resize resize-topleft"><div class="circle"></div></div>
-                    <div class="dot resize resize-topright"><div class="circle"></div></div>
-                    <div class="dot resize resize-bottomleft"><div class="circle"></div></div>
-                    <div class="dot resize resize-bottomright"><div class="circle"></div></div>
-                    <div class="dot rotate"><i class="fa-solid fa-rotate"></i></div>
-                    <div class="dot rotate shadow" style="visibility: hidden;"><i class="fa-solid fa-rotate"></i></div>
-                    <div class="dot delete"><i class="fa-solid fa-trash"></i></div>
-                    <div class="dot delete shadow" style="visibility: hidden;"><i class="fa-solid fa-trash"></i></div>
-                </div>
-            </div>
-        `;
-    }
-
-    setRatio(r: number) {
-        this.ratio = r;
-    }
-
-    setValue(x?: number, y?: number, angle?: number, w?: number, h?: number) {
-        this.x = x !== undefined ? x : this.x;
-        this.y = y !== undefined ? y : this.y;
-        this.angle = angle !== undefined ? angle : this.angle;
-        this.w = w !== undefined ? w : this.w;
-        this.h = h !== undefined ? h : this.h;
-    }
-
-    exportData() {
-        return [this.x, this.y, this.angle, this.w, this.h];
-    }
-
-    isCollided() {
-        return this.collided;
-    }
-
-    setIsCollided(is: boolean) {
-        this.collided = is;
-    }
-
-    isDeleted() {
-        return this.deleted;
-    }
-
-    setDeleted(is: boolean) {
-        this.deleted = is;
-    }
-
-    addController() {
-        this.$ele2.after(this.controllerTemplate);
-        this.addCSSForController()
-            .handleElementGoOffScreen("." + this.controllerClassName + " .rotate", "." + this.controllerClassName + " .rotate.shadow", "rotate")
-            .handleElementGoOffScreen("." + this.controllerClassName + " .delete", "." + this.controllerClassName + " .delete.shadow", "delete");
-        return this;
-    }
-
-    addCSSForController() {
-        const styleElement = document.createElement('style');
-        styleElement.textContent = this.css;
-        document.head.appendChild(styleElement);
-        return this;
-    }
-
-    delete(cb: () => void) {
-        const handleDelete = (e: Event) => {
-            e.preventDefault();
-            e.stopPropagation();
-            cb();
-            this.setDeleted(true);
-        };
-        $(this.ele1 + "--controller .delete").on("touchstart", handleDelete);
-        $(this.ele1 + "--controller .delete").on("mousedown", handleDelete);
-        return this;
-    }
-
-    repositionElement(x: number, y: number) {
-        const controllerWrapper = document.querySelector(this.ele1 + '--controller--container') as HTMLElement;
-        const boxWrapper = document.querySelector(this.ele1) as HTMLElement;
-
-        boxWrapper.style.left = x + 'px';
-        boxWrapper.style.top = y + 'px';
-        controllerWrapper.style.left = (x + (this.imgFrame?.offsetLeft || 0) + 3) + 'px';
-        controllerWrapper.style.top = (y + (this.imgFrame?.offsetTop || 0) + 3) + 'px';
-    }
-
-    resize(w: number, h: number) {
-        const controller = document.querySelector(this.ele1 + '--controller') as HTMLElement;
-        const img = document.querySelector(this.ele1 + " > img") as HTMLImageElement;
-
-        controller.style.width = w + 6 + 'px';
-        controller.style.height = h + 6 + 'px';
-        img.style.width = w + 'px';
-    }
-
-    rotateBox(deg: number) {
-        const controllerWrapper = document.querySelector(this.ele1 + '--controller--container') as HTMLElement;
-        const boxWrapper = document.querySelector(this.ele1) as HTMLElement;
-
-        boxWrapper.style.transform = `rotate(${deg}deg)`;
-        controllerWrapper.style.rotate = `${deg}deg`;
-        (controllerWrapper.querySelector(".delete") as HTMLElement).style.rotate = `${-deg}deg`;
-    }
-
-    handleElementGoOffScreen(main: string, shadow: string, type: string) {
-        const mainEle = document.querySelector(main) as HTMLElement;
-        const shadowEle = document.querySelector(shadow) as HTMLElement;
-
-        const options = {
-            root: null,
-            rootMargin: "0px",
-            threshold: 0.1,
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (!entry.isIntersecting) {
-                    shadowEle.style.visibility = "visible";
-                    shadowEle.style.left = mainEle.style.left;
-                    shadowEle.style.top = mainEle.style.top;
-
-                    if (type === "rotate") {
-                        this.isRotateOffScreen = true;
-                    }
-                } else {
-                    shadowEle.style.visibility = "hidden";
-                    if (type === "rotate") {
-                        this.isRotateOffScreen = false;
-                    }
-                }
-            });
-        }, options);
-
-        observer.observe(mainEle);
-
         return this;
     }
 }
