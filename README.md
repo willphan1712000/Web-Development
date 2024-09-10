@@ -1,3 +1,9 @@
+
+<img src="./will.png">
+
+
+
+
 ## This project is for web development initiated by Nha Phan (Will) from Kennesaw State University
 ## Note: This module requires users to have jQuery and FrontAwesome CDNs
 ```html
