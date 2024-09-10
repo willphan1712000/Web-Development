@@ -1,11 +1,11 @@
 <img style="width: 15%" src="./will.png">
 
-## Wjs is a Web development library made easy for FullStack Development to develop, build, and push to production created by Will Phan
+## Wjs is a Web development library made easy for Full-stack Development to develop, build, and push to production created by Will Phan
 ## It has pre-built classes that can be used for Web Development
 
 ## Key Benefits
 - Simple syntax that includes object-oriented programming techniques
-- Pre-built functionalities that handle difficult tasks in FullStack Development
+- Pre-built functionalities that handle difficult tasks in Full-stack Development
 - Provides flexibility, maintainability, and extensibility
 
 ## Technology
@@ -37,10 +37,10 @@ import { $$ } from "@Wjs/Web-Development";
 ## How to use Wjs
 |Name| Syntax| Pre-requisites|Functionality|
 |:---|:------|:--------------|:------------|
-|Transform|`$$(".wrapper", ".frame").transform()`|`<div class="frame"><div class="wrapper"><img src="" alt=""></div></div>`|This gives an image ability to be resize and rotate with added controller|
+|Transform|`$$(".wrapper", ".frame").transform()`|`<div class="frame"><div class="wrapper"><img src="" alt=""></div></div>`|This gives an image ability to resize and rotate with added controller|
 
 ## Find a bug?
-If you found an issue or would like to submit an improvement to this project, pleace submit an issue using the issues tab above. If you would like to submit a Pull Request with a fix, reference the issue you created
+If you found an issue or would like to submit an improvement to this project, please submit an issue using the issues tab above. If you would like to submit a Pull Request with a fix, reference the issue you created
 
 ## Happy with this project
 You can connect to me at [Facebook](https://www.facebook.com/phanthanhnha123200/) [Instagram](https://www.instagram.com/phanthanhnha_0117/)
