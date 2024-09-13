@@ -9,6 +9,7 @@ import ColorPickerDouble from "./components/colorPicker/ColorPickerDouble";
 import { Options, OptionsOption } from "./components/options/Options";
 import Transform from "./components/Transform/Transform";
 import UploadFile from "./components/upload/UploadFile";
+import TextEditor from "./components/textEditor/TextEditor";
 
 // Method overloads
 export function $$(ele1: any): W1;
@@ -71,6 +72,10 @@ export class W1 {
 
     public uploadFile(cb: (e: any) => void): UploadFile {
         return new UploadFile(this.ele1, cb);
+    }
+
+    public textEditor(cb: (e: any) => void) : TextEditor {
+        return new TextEditor(this.ele1, cb)
     }
 }
 export class W2 {

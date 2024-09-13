@@ -1,0 +1,25 @@
+{
+  "name": "will-js",
+  "version": "1.0.3",
+  "description": "Full Stack Library",
+  "main": "W.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/willphan1712000/Web-Development.git"
+  },
+  "keywords": [
+    "Will"
+  ],
+  "author": "Will Phan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/willphan1712000/Web-Development/issues"
+  },
+  "homepage": "https://github.com/willphan1712000/Web-Development#readme",
+  "dependencies": {
+    "will-kit": "^1.0.1"
+  }
+}

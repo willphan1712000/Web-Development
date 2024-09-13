@@ -1,6 +1,6 @@
 <img style="width: 15%" src="./will.png">
 
-## Wjs is a Web development library made easy for Full-stack Development to develop, build, and push to production created by Will Phan
+## Will-js is a Web development library made easy for Full-stack Development to develop, build, and push to production created by Will Phan
 ## It has pre-built classes that can be used for Web Development
 
 ## Key Benefits
@@ -20,21 +20,21 @@
 ## Installation
 ### Option 1: Clone this project to your local computer
 There is a file called W.ts that exports $$ function, this is the root function to use every other functions and classes.
-Simply import $$ to every ts files that you want to use Wjs
+Simply import $$ to every ts files that you want to use Will-js
 ```ts
 import { $$ } from "path/of/your/project/Web-Development/W";
 ```
 ### Options 2: Install from npm
 Run this command in your terminal (note: this assumes you have installed Nodejs)
 ```npm
-npm i @Wjs/Web-Development
+npm i Will-js
 ```
-Then import $$ function to every ts files that you want to use Wjs
+Then import $$ function to every ts files that you want to use Will-js
 ```ts
-import { $$ } from "@Wjs/Web-Development";
+import { $$ } from "Will-js";
 ```
 
-## How to use Wjs
+## How to use Will-js
 |Name| Syntax| Pre-requisites|Functionality|
 |:---|:------|:--------------|:------------|
 |Transform|`$$(".wrapper", ".frame").transform()`|`<div class="frame"><div class="wrapper"><img src="" alt=""></div></div>`|This gives an image ability to resize and rotate with added controller|

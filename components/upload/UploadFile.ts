@@ -46,32 +46,6 @@ export default class UploadFile implements IUploadFile {
         return [canvas, ctx!]
     }
 
-    // public drawImage(e: any, x: number, y: number, scale: number, angle: number, canvasWidth: number, canvasHeight: number, containerWidth: number, containerHeight: number): [string, any] {
-    //     const canvas = document.createElement("canvas");
-    //     canvas.width = canvasWidth;
-    //     canvas.height = canvasHeight;
-    //     const ctx = canvas.getContext("2d");
-
-    //     if (!ctx) {
-    //         throw new Error("Unable to get canvas context");
-    //     }
-
-    //     const ratioX = canvasWidth / containerWidth;
-    //     const ratioY = canvasHeight / containerHeight;
-    //     const finalX = x * ratioX;
-    //     const finalY = y * ratioY;
-    //     const midleWidth = e.width * ratioX;
-    //     const midleHeight = e.height * ratioY;
-    //     const finalWidth = e.width * ratioX * scale;
-    //     const finalHeight = e.height * ratioY * scale;
-
-    //     ctx.translate(finalX + midleWidth / 2, finalY + midleHeight / 2);
-    //     ctx.rotate((angle * Math.PI) / 180);
-    //     ctx.drawImage(e, -finalWidth / 2, -finalHeight / 2, finalWidth, finalHeight);
-    //     const srcEncoded = ctx.canvas.toDataURL(e).split(",")[1];
-    //     return [srcEncoded, ctx];
-    // }
-
     public drawImage(e: any, ctx: CanvasRenderingContext2D, x: number, y: number, scale: number, angle: number, canvas: HTMLCanvasElement, containerWidth: number, containerHeight: number): [CanvasRenderingContext2D, string, string] {
         const ratioX = canvas.width/containerWidth
         const ratioY = canvas.height/containerHeight
