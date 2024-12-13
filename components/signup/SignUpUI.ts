@@ -1,4 +1,5 @@
 import { $$$ } from "../../WW";
+import Response from "../Response";
 import CheckBox from "./CheckBox";
 import Email from "./Email";
 import Error from "./Error";
@@ -43,18 +44,27 @@ export default class SignUpUI {
     }
 
     public async update(): Promise<void> {
-        const r = await $$$(this.url.userExist, {
-            username: this.usernameBox.getUsername()
-        }).api().post();
+        const userExist = await $$$(this.url.userExist, {
+            username: this.usernameBox.getUsername(),
+        }).api().post() as Response;
+
+        const validEmail = await $$$(this.url.validEmail, {
+            email: this.emailBox.getEmail(),
+        }).api().post() as Response;
+
+        const validPassword = await $$$(this.url.validPassword, {
+            password: this.passwordBox.getPassword(),
+        }).api().post() as Response;
+        
         // Real time error message update
-        if(r) {
+        if(!userExist.success) {
             this.error.setError("Username exists");
         } else if(!this.usernameBox.isFilled()) {
             this.error.setError("Please enter username");
-        } else if(!this.emailBox.isValidEmail()) {
-            this.error.setError("Email is not valid");
-        } else if(!this.passwordBox.isValidPassword()) {
-            this.error.setError("Password is not valid");
+        } else if(!validEmail.success) {
+            this.error.setError(validEmail.error!);
+        } else if(!validPassword.success) {
+            this.error.setError(validPassword.error!);
         } else if(!this.checkBox.isChecked()) {
             this.error.setError("Please check terms and conditions");
         } else {
@@ -70,7 +80,7 @@ export default class SignUpUI {
         }
 
         // Handle logic, when user fill all information and all information should be valid before submitting to database
-        this.register.enabled(!r && this.usernameBox.isFilled() && this.passwordBox.isValidPassword() && this.emailBox.isValidEmail() && this.checkBox.isChecked());
+        this.register.enabled(userExist.success && this.usernameBox.isFilled() && validPassword.success && validEmail.success && this.checkBox.isChecked());
     }
 
     public async signup(): Promise<void> {

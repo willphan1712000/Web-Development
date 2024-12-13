@@ -10,6 +10,7 @@ import { Options, OptionsOption } from "./components/options/Options";
 import Transform from "./components/Transform/Transform";
 import UploadFile from "./components/upload/UploadFile";
 import TextEditor from "./components/textEditor/TextEditor";
+import ReactDOM from "react-dom/client";
 
 // Method overloads
 export function $$(ele1: any): W1;
@@ -106,6 +107,11 @@ export class W2 {
     public transform(): Transform {
         return new Transform(this.ele1, this.ele2);
     }
+
+    // reactMounting uses latest React syntax to mount an element to an already defined element
+    public reactMounting(): ReactMounting {
+        return new ReactMounting(this.ele1, this.ele2)
+    }
 }
 
 export class W3 {
@@ -139,6 +145,22 @@ export class W4 {
         this.ele2 = ele2;
         this.ele3 = ele3;
         this.ele4 = ele4;
+    }
+}
+
+class ReactMounting {
+    private element!: Element
+    private jsx!: JSX.Element
+
+    constructor(element: Element, jsx: JSX.Element) {
+        this.element = element
+        this.jsx = jsx
+
+        this.render();
+    }
+
+    private render() {
+        (ReactDOM.createRoot(this.element)).render(this.jsx)
     }
 }
 
