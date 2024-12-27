@@ -7,24 +7,26 @@ export default class TransformController {
         this.wrapper = wrapper;
         this.frame = frame;
         this.controller = controller;
+
+        this.addController()
     }
 
-    public addController() : void {
+    private addController() : void {
         const styleElement = document.createElement('style')
         styleElement.textContent = this.css()
         document.head.appendChild(styleElement)
 
-        $(this.frame).after(this.controllerTemplate())
+        $("." + this.frame).after(this.controllerTemplate())
     }
 
     private css(): string {
         return `
-        ${this.wrapper} {
+        .${this.wrapper} {
             position: absolute;
             transform-origin: top left;
             user-select: none;
         }
-        ${this.wrapper} > img {
+        .${this.wrapper} > img {
             object-fit: contain;
             position: absolute;
             top: 0;

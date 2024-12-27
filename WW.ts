@@ -68,6 +68,10 @@ class WW3 {
     signup(): Signup {
         return new Signup(this.ele1, this.ele2, this.ele3);
     }
+
+    formValidate(): FormValidate {
+        return new FormValidate(this.ele1, this.ele2, this.ele3);
+    }
 }
 
 class WW4 {
@@ -98,10 +102,6 @@ class WW5 {
         this.ele4 = ele4;
         this.ele5 = ele5;
     }
-
-    formValidate(): FormValidate {
-        return new FormValidate(this.ele1, this.ele2, this.ele3, this.ele4, this.ele5);
-    }
 }
 
 class WW6 {
@@ -122,22 +122,28 @@ class WW6 {
     }
 }
 
-class FormValidate extends WW5 {
-    input: string;
-    msg: string;
-    success: string;
-    error: string;
-    regex: string;
-    isValid: boolean;
+class FormValidate extends WW3 {
+    private inputElement: HTMLElement;
+    private feedbackElement: HTMLElement;
+    private regex: string;
+    private isValid: boolean; 
 
-    constructor(input: string, msg: string, success: string, error: string, regex: string) {
-        super(input, msg, success, error, regex);
-        this.input = input;
-        this.msg = msg;
-        this.success = success;
-        this.error = error;
+    constructor(inputElement: HTMLElement, feedbackElement: HTMLElement, regex: string) {
+        super(inputElement, feedbackElement, regex);
+        this.inputElement = inputElement;
+        this.feedbackElement = feedbackElement;
         this.regex = regex;
         this.isValid = true;
+
+        if(this.inputElement === null) {
+            throw new Error("Input Element is not defined or rendered")
+        }
+
+        if(this.feedbackElement === null) {
+            throw new Error("Feedback Element is not defined or rendered")
+        }
+
+        this.execute()
     }
 
     setValidity(value: boolean): void {
@@ -148,42 +154,30 @@ class FormValidate extends WW5 {
         return this.isValid;
     }
 
-    phoneFormat(): void {
-        $(this.input).on("input", (event) => {
-            const inputValue = (event.target as HTMLInputElement).value.replace(/\D/g, '');
-            let formattedValue = '';
+    execute(): this {
+        const regex: RegExp = new RegExp(this.regex)
 
-            // Apply the formatting
-            for (let i = 0; i < inputValue.length; i++) {
-                if (i === 3 || i === 6) {
-                    formattedValue += '-';
-                }
-                formattedValue += inputValue[i];
-            }
-
-            // Update the input value
-            (event.target as HTMLInputElement).value = formattedValue;
-        });
-    }
-
-    run(): this {
-        const regex: RegExp = new RegExp(this.regex);
-        $(this.input).on("input", (e) => {
+        this.inputElement.addEventListener("input", (e) => {
             const target = e.target as HTMLInputElement;
             if (target.value !== '') {
                 if (regex.test(target.value)) {
                     this.setValidity(true);
-                    $(this.msg).html(this.success);
+                    this.feedbackElement.innerHTML = `<i style="color: green;" class="fa-solid fa-check"></i>`
                 } else {
                     this.setValidity(false);
-                    $(this.msg).html(this.error);
+                    this.feedbackElement.innerHTML = `<i style="color: red;" class="fa-solid fa-x"></i>`
                 }
             } else {
-                $(this.msg).html('');
+                this.feedbackElement.innerHTML = '';
                 this.setValidity(true);
             }
-        });
+        })
         return this;
+    }
+
+    cleanup(): this {
+        this.inputElement.removeEventListener('input', () => {})
+        return this
     }
 }
 
@@ -211,7 +205,7 @@ class Signup extends WW3 {
 }
 
 class API extends WW2 {
-    constructor(src: string, data: object) {
+    constructor(src: string, data?: object) {
         super(src, data);
     }
 
@@ -226,7 +220,8 @@ class API extends WW2 {
                     res(e);
                 },
                 error: (jqXHR: any, textStatus: string, errorThrown: string) => {
-                    rej(new Error(`AJAX request failed: ${textStatus}, ${errorThrown}`));
+                    rej({'error': 'Request failed due to network connection failed'});
+                    throw new Error(`AJAX request failed: ${textStatus}, ${errorThrown}`)
                 }
             })
         })
@@ -244,7 +239,8 @@ class API extends WW2 {
                     res(e);
                 },
                 error: (jqXHR: any, textStatus: string, errorThrown: string) => {
-                    rej(new Error(`AJAX request failed: ${textStatus}, ${errorThrown}`));
+                    rej({'error': 'Request failed due to network connection failed'});
+                    throw new Error(`AJAX request failed: ${textStatus}, ${errorThrown}`)
                 }
             })
         })

@@ -8,51 +8,79 @@ type Dimension = [
     h: number,
 ]
 
+// Element 1 : Image Wrapper
+// Element 2 : Image Frame
+// Element 3 : Image element
+// Element 4 : Controller
+// <div className="frame"> (2)
+//     <div className="wrapper"> (1)
+//          <img className="img__preview" /> (3)
+//     </div>
+// </div>
+// <div class="controller"></div> (4)
+
 export default class Transform {
-    private ele1!: string; // Main element
-    private ele2!: string; // Container for image transformation
-    private collided!: boolean;
-    private deleted!: boolean;
+    private ele1!: HTMLElement; // Main element
+    private ele2!: HTMLElement; // Container for image transformation
     private x!: number;
     private y!: number;
     private angle!: number;
     private w!: number;
     private h!: number;
-    private $ele2!: JQuery<HTMLElement>;
     private imgFrame!: HTMLElement;
     private controllerClassName!: string;
+    private wrapperClass!: string;
+    private frameClass!: string;
     private isRotateOffScreen!: boolean;
     private img!: HTMLImageElement;
     private ratio!: number;
-    private transformController!: TransformController;
 
-    constructor(ele1: string, ele2?: string | undefined, ele3?: string | undefined) {
-        this.ele1 = ele1,
-        this.ele2 = ele2!,
-        this.collided = false
-        this.deleted = true
+    constructor(ele1: HTMLElement, ele2?: HTMLElement, ele3?: string) {
+        this.ele1 = ele1 // Element 1
+        this.ele2 = ele2! // Element 2
         this.x = 0
         this.y = 0
         this.angle = 0
         this.w = 0
         this.h = 0
-        this.$ele2 = $(this.ele2);
-        this.imgFrame = document.querySelector(this.ele2)!;
-        this.controllerClassName = this.ele1.substring(1) + '--controller';
-        this.isRotateOffScreen = false;
-        this.img = document.querySelector(this.ele1 + " > img") as HTMLImageElement;
-        this.ratio = this.img.width / this.img.height;
-        this.transformController = new TransformController(this.ele1, this.ele2, this.controllerClassName);
 
-        this.reset() // reset image to original
-        this.transformController.addController(); // add controller to image
+        if(this.ele1 === null) {
+            throw new Error("wrapper elemenet is not defined or not rendered yet")
+        }
+        this.wrapperClass = "_" + (Date.now() + 1).toString()
+        $(this.ele1).addClass(this.wrapperClass)
+
+        
+        this.imgFrame = this.ele2! // Element 2
+        if(this.imgFrame === null) {
+            throw new Error("frame element is not defined or not rendered yet")
+        }
+        this.frameClass = "_" + (Date.now() - 1).toString()
+        $(this.ele2).addClass(this.frameClass)
+
+        
+        this.img = (this.ele1).querySelector("img") as HTMLImageElement; // Element 3
+        if(this.img === null) {
+            throw new Error("image element is not defined or not rendered yet")
+        }
+        this.ratio = this.img.clientWidth / this.img.clientHeight;
+        
+        this.controllerClassName = "_" + Date.now().toString();
+        this.isRotateOffScreen = false;
+        new TransformController(this.wrapperClass, this.frameClass, this.controllerClassName);
+        
         this.transform(); // add transform to image
         this.handleElementGoOffScreen("." + this.controllerClassName + " .rotate", "." + this.controllerClassName + " .rotate.shadow", "rotate").handleElementGoOffScreen("." + this.controllerClassName + " .delete", "." + this.controllerClassName + " .delete.shadow", "delete"); // add hanle go off screen
     }
 
     public reset(): void {
-        $(this.ele1 + "--controller--container").remove(); // kill previous controller if exists
-        (document.querySelector(this.ele1) as HTMLElement).style.transform = `rotate(${0}deg)`; // reset image to 0 deg
+        const width = this.imgFrame.clientWidth
+        const height = width / this.ratio
+        this.resize(width, height);
+        // this.repositionElement(100, 100 / this.ratio);
+        this.repositionElement(width/2, this.imgFrame.clientHeight/2);
+        this.setValue(0, 0, 0, width, height)
+        this.rotateBox(0)
     }
     
     private setValue(x: number | undefined, y: number | undefined, angle:number | undefined, w: number | undefined, h: number | undefined) {
@@ -67,37 +95,9 @@ export default class Transform {
         return [this.x, this.y, this.angle, this.w, this.h];
     }
 
-    private isCollided() : boolean {
-        return this.collided
-    }
-
-    private setIsCollided(is : boolean) {
-        this.collided = is
-    }
-
-    private isDeleted() : boolean {
-        return this.deleted
-    }
-
-    private setDeleted(is : boolean): void {
-        this.deleted = is
-    }
-
-    private delete(cb: () => void) {
-        const handleDelete = (e: any) => {
-            e.preventDefault()
-            e.stopPropagation()
-            cb()
-            this.setDeleted(true)
-        }
-        $(this.ele1 + "--controller .delete").on("touchstart", e => handleDelete(e))
-        $(this.ele1 + "--controller .delete").on("mousedown", e => handleDelete(e))
-        return this
-    }
-
     private repositionElement(x: number, y: number) : void {
-        const controllerWrapper = document.querySelector(this.ele1 + '--controller--container') as HTMLElement;
-        const boxWrapper = document.querySelector(this.ele1) as HTMLElement;
+        const controllerWrapper = document.querySelector("." + this.controllerClassName + '--container') as HTMLElement;
+        const boxWrapper = this.ele1 as HTMLElement;
 
         boxWrapper.style.left = x + 'px';
         boxWrapper.style.top = y + 'px';
@@ -106,23 +106,25 @@ export default class Transform {
     }
 
     private resize(w: number, h: number): void {
-        const controller = document.querySelector(this.ele1 + '--controller') as HTMLElement;
-        const img = document.querySelector(this.ele1 + " > img") as HTMLElement;
+        const controller = document.querySelector("." + this.controllerClassName) as HTMLElement;
+        const img = this.img
+        const wrapper = this.ele1
 
-        controller.style.width = w + 6 + 'px';
-        controller.style.height = h + 6 + 'px';
+        controller.style.width = w + 3 + 'px';
+        controller.style.height = h + 3 + 'px';
         img.style.width = w + 'px';
+        wrapper.style.width = w + 'px';
         // img.style.height = h + 'px';
     }
 
     private rotateBox(deg: number): void {
-        const controllerWrapper = document.querySelector(this.ele1 + '--controller--container') as HTMLElement;
-        const boxWrapper = document.querySelector(this.ele1) as HTMLElement;
-        const deleteEle = controllerWrapper.querySelector(".delete") as HTMLElement;
+        const controllerWrapper = document.querySelector("." + this.controllerClassName + '--container') as HTMLElement;
+        const boxWrapper = this.ele1;
+        // const deleteEle = controllerWrapper.querySelector(".delete") as HTMLElemen
 
         boxWrapper.style.transform = `rotate(${deg}deg)`;
         controllerWrapper.style.rotate = `${deg}deg`;
-        deleteEle.style.rotate = `${-deg}deg`
+        // deleteEle.style.rotate = `${-deg}deg`
     }
 
     private handleElementGoOffScreen(main: string, shadow: string, type: string): Transform {
@@ -169,9 +171,8 @@ export default class Transform {
     }
 
     public transform() : Transform {
-        const controller = document.querySelector(this.ele1 + '--controller') as HTMLElement;
-        const controllerWrapper = document.querySelector(this.ele1 + '--controller--container') as HTMLElement;
-        const boxWrapper = document.querySelector(this.ele1) as HTMLElement;
+        const controllerWrapper = document.querySelector("." + this.controllerClassName + '--container') as HTMLElement;
+        const boxWrapper = this.ele1;
 
         const minWidth = 40;
         const minHeight = 40;
@@ -247,10 +248,10 @@ export default class Transform {
         // var topMid = document.getElementById("top-mid");
         // var bottomMid = document.getElementById("bottom-mid");
 
-        var leftTop = document.querySelector(this.ele1 + "--controller .resize-topleft") as HTMLElement;
-        var rightTop = document.querySelector(this.ele1 + "--controller .resize-topright") as HTMLElement;
-        var rightBottom = document.querySelector(this.ele1 + "--controller .resize-bottomright") as HTMLElement;
-        var leftBottom = document.querySelector(this.ele1 + "--controller .resize-bottomleft") as HTMLElement;
+        var leftTop = document.querySelector("." + this.controllerClassName + " .resize-topleft") as HTMLElement;
+        var rightTop = document.querySelector("." + this.controllerClassName + " .resize-topright") as HTMLElement;
+        var rightBottom = document.querySelector("." + this.controllerClassName + " .resize-bottomright") as HTMLElement;
+        var leftBottom = document.querySelector("." + this.controllerClassName + " .resize-bottomleft") as HTMLElement;
 
         const resizeHandler = (event: any, left = false, top = false, xResize = false, yResize = false, type: 'desk' | 'touch'
         ) => {
@@ -361,7 +362,7 @@ export default class Transform {
         leftBottom.addEventListener('touchstart', e => resizeHandler(e, true, false, true, true, 'touch'));
 
         // handle rotation
-        var rotate = document.querySelector(this.ele1 + "--controller .rotate") as HTMLElement;
+        var rotate = document.querySelector("." + this.controllerClassName + " .rotate") as HTMLElement;
         const handleRotate = (event: any, type: 'desk' | 'touch') => {
             event.preventDefault()
             event.stopPropagation()
@@ -372,7 +373,7 @@ export default class Transform {
             mousePressY = (type === 'desk') ? event.clientY : event.touches[0].clientY;
     
     
-            var arrow = document.querySelector(this.ele1 + '--controller') as HTMLElement;
+            var arrow = document.querySelector("." + this.controllerClassName) as HTMLElement;
             var arrowRects = arrow.getBoundingClientRect();
             var arrowX = arrowRects.left + arrowRects.width / 2;
             var arrowY = arrowRects.top + arrowRects.height / 2;
@@ -407,9 +408,18 @@ export default class Transform {
         rotate.addEventListener('mousedown', e => handleRotate(e, 'desk'), false);
         rotate.addEventListener('touchstart', e => handleRotate(e, 'touch'), false);
 
-        this.resize(200, 200 / this.ratio);
-        this.repositionElement(100, 100 / this.ratio);
-        this.setValue(0, 0, 0, 200, 200 / this.ratio)
+        this.reset()
+        return this
+    }
+
+    public cleanup(): Transform {
+        window.removeEventListener('mousedown', () => {})
+        window.removeEventListener('mouseup', () => {})
+        window.removeEventListener('mousemove', () => {})
+
+        window.removeEventListener('touchstart', () => {})
+        window.removeEventListener('touchend', () => {})
+        window.removeEventListener('touchmove', () => {})
         return this
     }
 }

@@ -11,6 +11,7 @@ import Transform from "./components/Transform/Transform";
 import UploadFile from "./components/upload/UploadFile";
 import TextEditor from "./components/textEditor/TextEditor";
 import ReactDOM from "react-dom/client";
+import FileType from "./components/upload/filetype";
 
 // Method overloads
 export function $$(ele1: any): W1;
@@ -25,8 +26,8 @@ export function $$(ele1: any, ele2?: any, ele3?: any, ele4?: any) {
         // Handle 3 arguments
         return new W3(ele1, ele2, ele3);
     } else if (ele2 !== undefined) {
-            // Handle 2 arguments
-            return new W2(ele1, ele2);
+        // Handle 2 arguments
+        return new W2(ele1, ele2);
     } else {
         // Handle 1 argument
         return new W1(ele1);
@@ -71,12 +72,12 @@ export class W1 {
         return new Options(this.ele1, cb, options);
     }
 
-    public uploadFile(cb: (e: any) => void): UploadFile {
-        return new UploadFile(this.ele1, cb);
-    }
-
     public textEditor(cb: (e: any) => void) : TextEditor {
         return new TextEditor(this.ele1, cb)
+    }
+
+    public uploadFile(cb: ({e, error}: any) => void, type: FileType): UploadFile {
+        return new UploadFile(this.ele1, cb, type);
     }
 }
 export class W2 {
@@ -86,10 +87,6 @@ export class W2 {
     constructor(ele1: any, ele2: any) {
         this.ele1 = ele1;
         this.ele2 = ele2;
-    }
-
-    public toggle(): Toggle {
-        return new Toggle(this.ele1, this.ele2);
     }
 
     public copyToClipboard(): CopyToClipboard {
@@ -132,6 +129,10 @@ export class W3 {
     public addIntersectionObserver(): AddIntersectionObserver {
         return new AddIntersectionObserver(this.ele1, this.ele2, this.ele3);
     }
+    
+    public toggle(): Toggle {
+        return new Toggle(this.ele1, this.ele2, this.ele3);
+    }
 }
 
 export class W4 {
@@ -149,10 +150,10 @@ export class W4 {
 }
 
 class ReactMounting {
-    private element!: Element
+    private element!: string
     private jsx!: JSX.Element
 
-    constructor(element: Element, jsx: JSX.Element) {
+    constructor(element: string, jsx: JSX.Element) {
         this.element = element
         this.jsx = jsx
 
@@ -160,7 +161,11 @@ class ReactMounting {
     }
 
     private render() {
-        (ReactDOM.createRoot(this.element)).render(this.jsx)
+        const parentElement: HTMLElement | null = document.querySelector(this.element);
+        if (!parentElement) {
+            throw new Error("Target DOM element not found");
+        }
+        (ReactDOM.createRoot(parentElement).render(this.jsx))
     }
 }
 
@@ -293,28 +298,25 @@ export class Table extends W2 {
 
 class Spinner extends W1 {
 
-    constructor(ele1: string) {
+    constructor(ele1: HTMLElement) {
         super(ele1);
     }
 
     public show(): this {
-        $(this.ele1 + " .loader").addClass("spinner");
+        // $(this.ele1 + " .loader").addClass("spinner");
+        $(this.ele1.querySelector(".loader")).addClass("spinner")
         return this;
     }
-
+    
     public hide(): this {
-        $(this.ele1 + " .loader").removeClass("spinner");
+        // $(this.ele1 + " .loader").removeClass("spinner");
+        $(this.ele1.querySelector(".loader")).removeClass("spinner")
         return this;
     }
 
     public singleSpinner(): this {
         const styleElement = document.createElement("style");
         styleElement.textContent = `
-        .spinner {
-            position: absolute;
-            top: calc(50% - 8px);
-            left: calc(50% - 8px);
-        }
         .spinner::after {
             content: "";
             position: absolute;
@@ -389,17 +391,78 @@ class PassShowHide extends W1 {
     }
 }
 
-class Toggle extends W2 {
+class Toggle extends W3 {
 
-    constructor(ele1: string, ele2: string) {
-        super(ele1, ele2);
+    constructor(ele1: {
+        trigger: HTMLElement,
+        terminate?: Array<HTMLElement>
+    }, ele2: HTMLElement, ele3: string) {
+        super(ele1, ele2, ele3);
     }
 
-    public run(): this {
+    public default(): this {
         $(this.ele1).click((e) => {
             $(e.currentTarget).toggleClass(this.ele2);
         });
         return this;
+    }
+
+    private disableScroll() {
+        $("body").css({
+            overflow: "hidden"
+        })
+    }
+
+    private enableScroll() {
+        $("body").css({
+            overflow: "auto"
+        })
+    }
+
+    public advanced(): this {
+        // Check if the showing element is defined or rendered yet
+        if(this.ele2 === null) {
+            throw new Error("showing element is not defined or rendered on DOM")
+        }
+
+        // Check if trigger element is defined or rendered yet. If so, perform click event. If clicked, open the showing element. If clicked again, close the showing element
+        if(this.ele1.terminate === null) {
+            throw new Error("terminating element is not defined or rendered on DOM")
+        } else {
+            this.ele1.trigger.addEventListener('click', (e: any) => {
+                e.preventDefault()
+                e.stopPropagation()
+                if($(this.ele2).hasClass(this.ele3)) {
+                    this.enableScroll()
+                    $(this.ele2).removeClass(this.ele3)
+                } else {
+                    this.disableScroll()
+                    $(this.ele2).addClass(this.ele3)
+                }
+            })
+        }
+
+        // terminating element could be null. If not null, perform click event for every element in the terminating array to close the showing menu
+        if(this.ele1.terminate !== null) {
+            document.addEventListener('click', e => {
+                const target = e.target as HTMLElement
+
+                if((this.ele1.terminate as Array<HTMLElement>).includes(target)) {
+                    this.enableScroll()
+                    $(this.ele2).removeClass(this.ele3)
+                }
+            })
+        }
+
+        return this
+    }
+
+    public cancel(): this {
+        $(this.ele1.trigger).off()
+        $(this.ele1.terminate).off()
+        $(this.ele2).off()
+        $(document).off()
+        return this
     }
 }
 
