@@ -22,18 +22,22 @@ type Dimension = [
 export default class Transform {
     private ele1!: HTMLElement; // Main element
     private ele2!: HTMLElement; // Container for image transformation
+
     private x!: number;
     private y!: number;
     private angle!: number;
     private w!: number;
     private h!: number;
+
+    private wrapperClass!: string;
     private imgFrame!: HTMLElement;
     private controllerClassName!: string;
-    private wrapperClass!: string;
     private frameClass!: string;
     private isRotateOffScreen!: boolean;
     private img!: HTMLImageElement;
     private ratio!: number;
+    private controllerContainer!: HTMLElement;
+    private controller!: HTMLElement;
 
     constructor(ele1: HTMLElement, ele2?: HTMLElement, ele3?: string) {
         this.ele1 = ele1 // Element 1
@@ -47,7 +51,7 @@ export default class Transform {
         if(this.ele1 === null) {
             throw new Error("wrapper elemenet is not defined or not rendered yet")
         }
-        this.wrapperClass = "_" + (Date.now() + 1).toString()
+        this.wrapperClass = "_" + (Date.now() + 5000).toString()
         $(this.ele1).addClass(this.wrapperClass)
 
         
@@ -55,7 +59,7 @@ export default class Transform {
         if(this.imgFrame === null) {
             throw new Error("frame element is not defined or not rendered yet")
         }
-        this.frameClass = "_" + (Date.now() - 1).toString()
+        this.frameClass = "_" + (Date.now() - 5000).toString()
         $(this.ele2).addClass(this.frameClass)
 
         
@@ -67,8 +71,17 @@ export default class Transform {
         
         this.controllerClassName = "_" + Date.now().toString();
         this.isRotateOffScreen = false;
-        new TransformController(this.wrapperClass, this.frameClass, this.controllerClassName);
-        
+
+        this.initialize()
+    }
+
+    private async initialize() {
+        const transformController = new TransformController(this.wrapperClass, this.frameClass, this.controllerClassName);
+        await transformController.addController()
+
+        this.controllerContainer = document.querySelector("." + this.controllerClassName + '--container')!
+        this.controller = document.querySelector("." + this.controllerClassName)!
+
         this.transform(); // add transform to image
         this.handleElementGoOffScreen("." + this.controllerClassName + " .rotate", "." + this.controllerClassName + " .rotate.shadow", "rotate").handleElementGoOffScreen("." + this.controllerClassName + " .delete", "." + this.controllerClassName + " .delete.shadow", "delete"); // add hanle go off screen
     }
@@ -96,7 +109,7 @@ export default class Transform {
     }
 
     private repositionElement(x: number, y: number) : void {
-        const controllerWrapper = document.querySelector("." + this.controllerClassName + '--container') as HTMLElement;
+        const controllerWrapper = this.controllerContainer
         const boxWrapper = this.ele1 as HTMLElement;
 
         boxWrapper.style.left = x + 'px';
@@ -106,7 +119,7 @@ export default class Transform {
     }
 
     private resize(w: number, h: number): void {
-        const controller = document.querySelector("." + this.controllerClassName) as HTMLElement;
+        const controller = this.controller;
         const img = this.img
         const wrapper = this.ele1
 
@@ -118,7 +131,7 @@ export default class Transform {
     }
 
     private rotateBox(deg: number): void {
-        const controllerWrapper = document.querySelector("." + this.controllerClassName + '--container') as HTMLElement;
+        const controllerWrapper = this.controllerContainer;
         const boxWrapper = this.ele1;
         // const deleteEle = controllerWrapper.querySelector(".delete") as HTMLElemen
 
@@ -171,7 +184,7 @@ export default class Transform {
     }
 
     public transform() : Transform {
-        const controllerWrapper = document.querySelector("." + this.controllerClassName + '--container') as HTMLElement;
+        const controllerWrapper = this.controllerContainer;
         const boxWrapper = this.ele1;
 
         const minWidth = 40;
@@ -373,7 +386,7 @@ export default class Transform {
             mousePressY = (type === 'desk') ? event.clientY : event.touches[0].clientY;
     
     
-            var arrow = document.querySelector("." + this.controllerClassName) as HTMLElement;
+            var arrow = this.controller as HTMLElement;
             var arrowRects = arrow.getBoundingClientRect();
             var arrowX = arrowRects.left + arrowRects.width / 2;
             var arrowY = arrowRects.top + arrowRects.height / 2;

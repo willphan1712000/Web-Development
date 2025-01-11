@@ -1,6 +1,6 @@
 // W.js is module created by Will - Thanh Nha Phan - Kennesaw State University
 // This module helps frontend development to be easily deployed
-
+import $ from 'jquery'
 import SearchUI from "./components/search/SearchUI";
 import { RangeSliderOptions, RangeSlider } from "./components/rangeSlider/RangeSlider";
 import { ColorPicker, ColorPickerOptions } from "./components/colorPicker/ColorPicker";
@@ -163,7 +163,7 @@ class ReactMounting {
     private render() {
         const parentElement: HTMLElement | null = document.querySelector(this.element);
         if (!parentElement) {
-            throw new Error("Target DOM element not found");
+            throw new Error("The element React components will be mounted on is not found");
         }
         (ReactDOM.createRoot(parentElement).render(this.jsx))
     }
@@ -250,21 +250,20 @@ export class Table extends W2 {
     // 1 data1 data2
     // 2 data3 data4
     private location: string;
-    private header: {[key: number]: string};
+    private data: Array<Object>;
 
-    constructor(location: string, header: {[key: number]: string;}) {
-        super(location, header);
+    constructor(location: string, data: Array<Object>) {
+        super(location, data);
         this.location = location;
-        this.header = header;
+        this.data = data;
     }
 
     public addHeader(): this {
         $(this.location).append('<table><tr></tr></table>');
-
         // Append header
-        for (const headerKey in this.header) {
-            if (this.header.hasOwnProperty(headerKey)) {
-                $(this.location + " table tr").append(`<th>${this.header[headerKey]}</th>`);
+        for (const headerKey in this.data[0]) {
+            if (this.data[0].hasOwnProperty(headerKey)) {
+                $(this.location + " table tr").append(`<th>${headerKey}</th>`);
             }
         }
 
@@ -273,13 +272,26 @@ export class Table extends W2 {
 
     public addRow(data: {
         [key: number]: {
-            [key: number]: string
+            [key: number]: any
         }
     }): this {
         // Append data rows
         for (const dataKey in data) {
             let row = `<tr>`, eachData = data[dataKey];
             for (const eachKey in eachData) {
+                if(eachKey === 'createdAt') {
+                    let dateFormatted = new Intl.DateTimeFormat('en-US', {
+                        timeZone: 'America/New_York',
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                      }).format(new Date(eachData[eachKey]));
+                    row += `<th>${dateFormatted}</th>`;
+                    continue
+                }
                 row += `<th>${eachData[eachKey]}</th>`;
             }
             row += `</tr>`;

@@ -1,6 +1,6 @@
 // WW.js is module created by Will - Thanh Nha Phan - Kennesaw State University
 // This module helps backend development to be easily deployed
-
+import $ from 'jquery'
 import SignUpUI from "./components/signup/SignUpUI";
 
 // Method overloads
@@ -209,7 +209,7 @@ class API extends WW2 {
         super(src, data);
     }
 
-    public get() : Promise<object> {
+    public get() : Promise<any> {
         return new Promise((res, rej) => {
             $.ajax({
                 url: this.ele1,
@@ -227,7 +227,7 @@ class API extends WW2 {
         })
     }
 
-    public post() : Promise<object> {
+    public post() : Promise<any> {
         return new Promise((res, rej) => {
             $.ajax({
                 url: this.ele1,

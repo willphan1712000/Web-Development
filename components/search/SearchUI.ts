@@ -12,10 +12,9 @@ export default class SearchUI {
 
     constructor(input: string ,tableProps: any) {
         this.inputUI = new InputUI(input, this);
-        this.tableUI = new TableUI(tableProps.container, tableProps.header, tableProps.target, tableProps.limit, tableProps.like, tableProps.url, tableProps.html);
-        this.dataUI = new DataUI(tableProps.url);
+        this.tableUI = new TableUI(tableProps.container, tableProps.target, tableProps.limit, tableProps.like, tableProps.url, tableProps.html);
+        this.dataUI = new DataUI(tableProps.url.get);
         this.createTable();
-        
     }
 
     async createTable() : Promise<void> {
@@ -24,13 +23,16 @@ export default class SearchUI {
     }
 
     async update() : Promise<void> {
-        const v = this.inputUI.getValue()
+        const like = this.inputUI.getValue()
+        const limit = this.tableUI.getLimit();
+
         const data = await this.dataUI.getData({
-            limit: this.tableUI.getLimit(),
-            like: v
+            limit,
+            like,
+            username: 'Allinclicks'
         })
 
-        if(v === "") {
+        if(like === "") {
             this.observer?.resetCount();
             this.observer?.observe();
         } else {
@@ -38,6 +40,6 @@ export default class SearchUI {
         }
 
         this.table?.empty();
-        this.tableUI.addRow(this.table, data, true);
+        this.tableUI.addRow(this.table, data.data!);
     }
 }

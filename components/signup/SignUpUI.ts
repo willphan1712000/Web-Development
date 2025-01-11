@@ -22,6 +22,8 @@ interface Success {
     afterClass: string
 }
 
+const key = process.env.SYSTEM_SECRET_KEY
+
 export default class SignUpUI {
     private usernameBox: Username;
     private passwordBox: Password;
@@ -46,19 +48,22 @@ export default class SignUpUI {
     public async update(): Promise<void> {
         const userExist = await $$$(this.url.userExist, {
             username: this.usernameBox.getUsername(),
+            key
         }).api().post() as Response;
 
         const validEmail = await $$$(this.url.validEmail, {
             email: this.emailBox.getEmail(),
+            key
         }).api().post() as Response;
 
         const validPassword = await $$$(this.url.validPassword, {
             password: this.passwordBox.getPassword(),
+            key
         }).api().post() as Response;
         
         // Real time error message update
         if(!userExist.success) {
-            this.error.setError("Username exists");
+            this.error.setError(userExist.error!);
         } else if(!this.usernameBox.isFilled()) {
             this.error.setError("Please enter username");
         } else if(!validEmail.success) {
@@ -88,11 +93,15 @@ export default class SignUpUI {
         const r = await $$$(this.url.signup, {
             username: this.usernameBox.getUsername(),
             password: this.passwordBox.getPassword(),
-            email: this.emailBox.getEmail()
+            email: this.emailBox.getEmail(),
+            key
         }).api().post();
         if(r) {
             $(this.success.before).addClass(this.success.beforeClass);
             $(this.success.after).addClass(this.success.afterClass);
+            setTimeout(() => {
+                window.location.href = '/' + this.usernameBox.getUsername() + '/admin' // redirect user to admin page
+            }, 2000)
         }
     }
 }

@@ -7,16 +7,17 @@ export default class TransformController {
         this.wrapper = wrapper;
         this.frame = frame;
         this.controller = controller;
-
-        this.addController()
     }
 
-    private addController() : void {
-        const styleElement = document.createElement('style')
-        styleElement.textContent = this.css()
-        document.head.appendChild(styleElement)
-
-        $("." + this.frame).after(this.controllerTemplate())
+    public addController() : Promise<void> {
+        return new Promise((res) => {
+            const styleElement = document.createElement('style')
+            styleElement.textContent = this.css()
+            document.head.appendChild(styleElement)
+    
+            $("." + this.frame).after(this.controllerTemplate())
+            res()
+        })
     }
 
     private css(): string {

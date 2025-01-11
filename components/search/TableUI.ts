@@ -1,5 +1,6 @@
 import { $$, AddIntersectionObserver, Table } from "../../W";
 import { $$$ } from "../../WW";
+import Response from "../Response";
 import DataUI from "./DataUI";
 
 interface ITableUI {
@@ -18,17 +19,23 @@ export default class TableUI implements ITableUI {
     private limit: number;
     private like: number;
     private dataUI: DataUI;
-    private header: Object;
     private html: any;
+    private url : {
+        get: string,
+        delete: string
+    }
 
-    constructor(container: string, header: Object, target: string, limit: number, like: number, url: string, html: any) {
+    constructor(container: string, target: string, limit: number, like: number, url: {
+        get: string,
+        delete: string
+    }, html: any) {
         this.tableContainer = container;
         this.target = target;
         this.limit = limit;
         this.like = like;
-        this.header = header;
-        this.dataUI = new DataUI(url);
+        this.dataUI = new DataUI(url.get);
         this.html = html;
+        this.url = url
     }
     public getLimit(): number {
         return this.limit;
@@ -39,12 +46,13 @@ export default class TableUI implements ITableUI {
     public async initilize(): Promise<Table> {
         const data = await this.dataUI.getData({
             limit: this.limit,
-            like: this.like
+            like: this.like,
+            username: 'Allinclicks'
         })
 
         // create initial table
-        const table = $$(this.tableContainer,this.header).table().addHeader();
-        this.addRow(table, data, false);
+        const table = $$(this.tableContainer, data.data).table().addHeader();
+        this.addRow(table, data.data!);
         return table;
     }
     public addObserver(table: Table): AddIntersectionObserver {
@@ -56,52 +64,51 @@ export default class TableUI implements ITableUI {
                 o.increaseCount();
                 const data = await this.dataUI.getData({
                    limit,
-                   offset: limit * o.getCount()
+                   offset: limit * o.getCount(),
+                   username: 'Allinclicks'
                });
-               this.addRow(table, data, true);
+               this.addRow(table, data.data!);
             }
         }).addIntersectionObserver().observe();
         return o;
     }
 
-    public addRow(table: Table | undefined, data: Data, search: boolean) {
+    public addRow(table: Table | undefined, data: Data) {
         table!.addRow(data);
-        this.handleClick(search);
+        this.handleClick();
     }
 
-    private handleClick(search: boolean) {
+    private handleClick() {
         const html = this.html;
-        if(search) {
-            $(html.button).off("click", e => {
-                return null;
-            });
-            $(html.confirm).off("click", e => {
-                return null;
-            });
-            $(html.back).off("click", e => {
-                return null;
-            });
-        }
+        $(html.button).off("click", undefined);
+        $(html.confirm).off("click", undefined);
+        $(html.back).off("click", undefined);
 
-        $(html.button).click(function(e) {
+        const state:{
+            currentUsernameValue?: string
+        } = {currentUsernameValue: undefined} 
+
+        $(html.button).click(e =>  {
             $(html.parent).addClass("active")
             let currentUsernameElement = e.currentTarget as HTMLInputElement;
-            let currentUsernameValue = "";
-            currentUsernameValue = currentUsernameElement.value;
-            
-            $(html.confirm).click(async function() {
-                const r = await $$$("/data/api/deleteAccount.php", {
-                    username: currentUsernameValue,
-                }).api().post();
-                if(r) {
-                    location.reload();
-                }
-            })
-
-            $(html.back).click(() => {
-                $(html.parent).removeClass("active");
-                currentUsernameValue = "";
-            });
+            state.currentUsernameValue = currentUsernameElement.value;
         })
+        $(html.confirm).click(async () => {
+            const r = await $$$(this.url.delete, {
+                username: state.currentUsernameValue,
+                key: process.env.SYSTEM_SECRET_KEY
+            }).api().post() as Response
+
+            if(r.success) {
+                location.reload();
+            } else {
+                alert(r.error)
+            }
+        })
+
+        $(html.back).click(() => {
+            $(html.parent).removeClass("active");
+            state.currentUsernameValue = "";
+        });
    }
 }
