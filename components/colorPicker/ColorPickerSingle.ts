@@ -1,7 +1,7 @@
 import { ColorPicker, ColorPickerOptions } from "./ColorPicker";
-import { ColorPickerParent } from "./ColorPickerParent";
+import { ColorPickerMethod } from "./ColorPickerMethod";
 
-export default class ColorPickerSingle extends ColorPickerParent implements ColorPicker {
+export default class ColorPickerSingle extends ColorPickerMethod implements ColorPicker {
     private color: string;
     private container: string;
     private options: ColorPickerOptions;

@@ -1,8 +1,6 @@
 
 export default interface Response {
     success: boolean,
-    data?: {
-        [key: string]: string | any
-    },
+    data?: any,
     error?: string
 }

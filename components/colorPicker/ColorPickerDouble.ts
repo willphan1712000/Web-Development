@@ -1,9 +1,9 @@
 import { ColorPicker, ColorPickerOptions } from "./ColorPicker";
-import { ColorPickerParent } from "./ColorPickerParent";
+import { ColorPickerMethod } from "./ColorPickerMethod";
 
 type Gradient = {color1: string, color2: string, deg: string};
 
-export default class ColorPickerDouble extends ColorPickerParent implements ColorPicker {
+export default class ColorPickerDouble extends ColorPickerMethod implements ColorPicker {
     private color: string;
     private gradient: Gradient;
     private container: string;
