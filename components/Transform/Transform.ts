@@ -92,8 +92,8 @@ export default class Transform {
         this.resize(width, height);
         // this.repositionElement(100, 100 / this.ratio);
         this.repositionElement(width/2, this.imgFrame.clientHeight/2);
-        this.setValue(0, 0, 0, width, height)
         this.rotateBox(0)
+        this.setValue(0, this.imgFrame.clientHeight/2 - this.img.height/2, 0, width, height)
     }
     
     private setValue(x: number | undefined, y: number | undefined, angle:number | undefined, w: number | undefined, h: number | undefined) {
