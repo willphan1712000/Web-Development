@@ -202,7 +202,6 @@ class Signup extends WW3 {
         super(ui, url, success);
         this.signUpUI = new SignUpUI(ui, url, success);
     }
-    
 }
 
 class API extends WW2 {
@@ -244,6 +243,18 @@ class API extends WW2 {
                     throw new Error(`AJAX request failed: ${textStatus}, ${errorThrown}`)
                 }
             })
+        })
+    }
+
+    public postTry() {
+        return this.try(this.post())
+    }
+
+    public try<T>(promise: Promise<T>): Promise<[undefined, T]| [Error | any]> {
+        return promise.then(data => {
+            return [undefined, data] as [undefined, T]
+        }).catch(error => {
+            return [error] as [Error | any]
         })
     }
 }
