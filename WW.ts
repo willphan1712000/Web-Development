@@ -265,6 +265,7 @@ class WPromise extends WW0 {
             return WPromise.instance
         }
 
+        console.log("Instantiated")
         super()
 
         WPromise.instance = this
@@ -325,6 +326,19 @@ class WPromise extends WW0 {
     }
 
     /**
+      * This method waits for n seconds
+      * @param n second(s)
+      * @returns the a promise of type void
+      */
+    private wait(n: number): Promise<void> {
+        return new Promise((res) => {
+            setTimeout(() => {
+                res()
+            }, n * 1000)
+        })
+    }
+
+    /**
       * This can handle promise all settled using T type
       * @param promiseArray input a list of promises
       * @returns the array of T object
@@ -346,10 +360,13 @@ class WPromise extends WW0 {
         
                 let results
                 for(let i = 1; i <= retry; i++) {
+                    await this.wait(1.5) // wait for 1.5 seconds before the next retry
+                    
                     results = await this.PromiseAllSettled(failedPromises)
                     failedPromises = this.failedPromise(results, failedPromises)
         
                     if(failedPromises.length === 0) break
+
                 }
     
                 results_init.forEach(result => {
