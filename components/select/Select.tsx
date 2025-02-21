@@ -40,7 +40,8 @@ const Select = ({type, value, change, options}: Props & SelectProps) => {
        change,
        value,
        options
-    }}><SingleSelect /></SelectContext.Provider>
+    }}><SingleSelect />
+    </SelectContext.Provider>
   )
 
   if(type === "multiple") return (
@@ -48,7 +49,8 @@ const Select = ({type, value, change, options}: Props & SelectProps) => {
        change,
        value,
        options
-    }}><MultiSelect /></SelectContext.Provider>
+    }}><MultiSelect />
+    </SelectContext.Provider>
   )
 }
 
