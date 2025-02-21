@@ -1,17 +1,12 @@
-import { ChangeEvent, useEffect, useRef, useState } from 'react'
-import { handleSelectContext } from './Select'
-import X from './icon/X'
+import { useState } from 'react'
 import ArrowDown from './icon/ArrowDown'
+import X from './icon/X'
 import List from './List'
+import { handleSelectContext } from './Select'
 
 const SingleSelect = () => {
   const data = handleSelectContext()
   const [isOpen, setOpen] = useState<boolean>(false)
-  const [search, setSearch] = useState<string>(data.value)
-
-  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value)
-  }
 
   return (
     <>
