@@ -5,6 +5,11 @@ interface Props {
   open: (e: boolean) => void
 }
 
+/**
+ * 
+ * @param open : click event handler 
+ * @returns 
+ */
 const List = ({open}: Props) => {
   const data = handleSelectContext()
   const list = useRef<HTMLDivElement>(null)
