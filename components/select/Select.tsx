@@ -4,7 +4,6 @@ import SingleSelect from './single/SingleSelect'
 
 interface Props {
     type?: "single" | "multiple",
-    size?: number
 }
 
 export type SelectOption = {
@@ -15,7 +14,8 @@ export type SelectOption = {
 type SelectProps = {
   value?: any | any[],
   options: SelectOption[],
-  change: (e: any) => void
+  change: (e: any) => void,
+  size?: | "10" | "15" | "20" | "25" | "30" | "35" | "40"
 } | undefined
 
 const SelectContext = createContext<SelectProps>(undefined)
@@ -30,16 +30,21 @@ export function handleSelectContext() {
   return data
 }
 
-const Select = ({type, value, change, options}: Props & SelectProps) => {
-  if(!type) {
-    type = 'single'
-  }
-
+/**
+ * @param type : type of select, default is "single"
+ * @param value : a value state that is chosen
+ * @param change : state change function
+ * @param options : options array
+ * @param size : size of select, default is "30"
+ * @returns : Select UI Component
+ */
+const Select = ({type = "single", value, change, options, size = "30"}: Props & SelectProps) => {
   if(type === "single") return (
     <SelectContext.Provider value={{
        change,
        value,
-       options
+       options,
+       size
     }}><SingleSelect />
     </SelectContext.Provider>
   )
@@ -48,7 +53,8 @@ const Select = ({type, value, change, options}: Props & SelectProps) => {
     <SelectContext.Provider value={{
        change,
        value,
-       options
+       options,
+       size
     }}><MultiSelect />
     </SelectContext.Provider>
   )

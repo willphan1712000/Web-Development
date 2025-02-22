@@ -10,7 +10,7 @@ const SingleSelect = () => {
 
   return (
     <>
-      <div className='relative w-[20rem] aspect-[6] m-[0.5rem]'>
+      <div className='relative aspect-[6]' style={{width: `${data.size}%`}}>
         <div
           className="p-[3%] flex flex-row border-[1px] justify-between items-center border-black rounded-[1rem] size-full cursor-pointer relative" onClick={() => {
             setOpen(prev => !prev)
