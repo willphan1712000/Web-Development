@@ -53,5 +53,4 @@ const List = ({open}: Props) => {
     </div>  
   )
 }
-
 export default List
