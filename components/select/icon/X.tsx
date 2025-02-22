@@ -1,7 +1,7 @@
 import React, { MouseEventHandler } from 'react'
 
 interface Props {
-  onClick: MouseEventHandler<HTMLDivElement>
+  onClick?: MouseEventHandler<HTMLDivElement>
 }
 
 const X = ({onClick}: Props) => {

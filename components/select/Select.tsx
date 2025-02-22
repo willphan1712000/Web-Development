@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
-import MultiSelect from './MultiSelect'
-import SingleSelect from './SingleSelect'
+import MultiSelect from './multiple/MultiSelect'
+import SingleSelect from './single/SingleSelect'
 
 interface Props {
     type?: "single" | "multiple",
@@ -13,7 +13,7 @@ export type SelectOption = {
 }
 
 type SelectProps = {
-  value?: any,
+  value?: any | any[],
   options: SelectOption[],
   change: (e: any) => void
 } | undefined

@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import ArrowDown from './icon/ArrowDown'
-import X from './icon/X'
+import ArrowDown from '../icon/ArrowDown'
+import X from '../icon/X'
+import { handleSelectContext } from '../Select'
 import List from './List'
-import { handleSelectContext } from './Select'
 
 const SingleSelect = () => {
   const data = handleSelectContext()

@@ -1,5 +1,5 @@
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
-import { handleSelectContext } from './Select'
+import { handleSelectContext } from '../Select'
 
 interface Props {
   open: (e: boolean) => void
@@ -40,7 +40,7 @@ const List = ({open}: Props) => {
       <div className='w-full'>
         <input type="text" className='w-full border-black border-[1px] p-[0.25rem] rounded-[0.5rem] mb-[0.25rem]' placeholder='Search' value={query} onChange={handleSearchChange}/>
       </div>
-      {filteredList.map(option => (
+      {filteredList.map((option: any) => (
         <div key={option.value} className='hover:bg-[#f0f0f0] w-full p-1.5 rounded-[10px] cursor-pointer' onClick={() => {
           data.change(option.value)
           open(false)
