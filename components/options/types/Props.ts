@@ -3,4 +3,4 @@ type Props = {
     face?: string
 }
 
-export {Props}
+export type {Props}
