@@ -10,13 +10,14 @@ const SingleSelect = () => {
 
   return (
     <>
-      <div className='relative aspect-[6]' style={{width: `${data.size}%`}}>
+      <div className='relative aspect-[6]' style={{width: `${data.size}%`, color: `${data.text}`}}>
         <div
-          className="p-[3%] flex flex-row border-[1px] justify-between items-center border-black rounded-[1rem] size-full cursor-pointer relative" onClick={() => {
+          className="p-[3%] flex flex-row border-[1px] justify-between items-center rounded-[1rem] size-full cursor-pointer relative" onClick={() => {
             setOpen(prev => !prev)
           }}
+          style={{borderColor: `${data.text}`}}
         >
-          <span className=''>{data.value}</span>
+          <span style={{color: `${data.text}`}}>{data.value}</span>
 
           <div className='w-[23%] flex row gap-0'>
             <X onClick={(e) => {

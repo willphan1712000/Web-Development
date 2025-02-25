@@ -10,7 +10,7 @@ const MultiSelect = () => {
 
   return (
     <>
-      <div className={`relative`} style={{width: `${data.size}%`}}>
+      <div className={`relative`} style={{width: `${data.size}%`, color: `${data.text}`}}>
         <div
           className="p-[3%] flex flex-row border-[1px] justify-between items-center border-black rounded-[1rem] size-full cursor-pointer relative" onClick={() => {
             setOpen(prev => !prev)

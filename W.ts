@@ -2,12 +2,12 @@
 // This module helps frontend development to be easily deployed
 import $ from 'jquery'
 import SearchUI from "./components/search/SearchUI";
-
 import Transform from "./components/Transform/Transform";
 import UploadFile from "./components/upload/UploadFile";
 import TextEditor from "./components/textEditor/TextEditor";
 import ReactDOM from "react-dom/client";
 import FileType from "./components/upload/filetype";
+import { JSX } from 'react';
 
 // Export React Components
 export { default as ColorPickerGradient } from './components/colorPicker/ColorPickerGradient';
@@ -77,6 +77,11 @@ export class W2 {
         this.ele2 = ele2;
     }
 
+    /**
+     * @param String text to bo copied
+     * @param HTMLElement element to be clicked on to copy text
+     * @returns copy text to clipboard
+     */
     public copyToClipboard(): CopyToClipboard {
         return new CopyToClipboard(this.ele1, this.ele2);
     }
@@ -471,10 +476,10 @@ class CopyToClipboard extends W2 {
         super(ele1, ele2);
     }
 
-    public run(cb: () => void): void {
+    public run(cb: (e: string) => void): void {
         $(this.ele2).click(() => {
             navigator.clipboard.writeText(this.ele1).then(() => {
-                cb();
+                cb(this.ele1);
             });
         });
     }

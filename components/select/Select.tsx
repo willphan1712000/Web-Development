@@ -15,7 +15,8 @@ type SelectProps = {
   value?: any | any[],
   options: SelectOption[],
   change: (e: any) => void,
-  size?: | "10" | "15" | "20" | "25" | "30" | "35" | "40"
+  size?: | "10" | "15" | "20" | "25" | "30" | "35" | "40",
+  text?: string,
 } | undefined
 
 const SelectContext = createContext<SelectProps>(undefined)
@@ -38,13 +39,14 @@ export function handleSelectContext() {
  * @param size : size of select, default is "30"
  * @returns : Select UI Component
  */
-const Select = ({type = "single", value, change, options, size = "30"}: Props & SelectProps) => {
+const Select = ({type = "single", value, change, options, size = "30", text = "#000"}: Props & SelectProps) => {
   if(type === "single") return (
     <SelectContext.Provider value={{
        change,
        value,
        options,
-       size
+       size,
+       text
     }}><SingleSelect />
     </SelectContext.Provider>
   )
@@ -54,7 +56,8 @@ const Select = ({type = "single", value, change, options, size = "30"}: Props & 
        change,
        value,
        options,
-       size
+       size,
+       text
     }}><MultiSelect />
     </SelectContext.Provider>
   )
