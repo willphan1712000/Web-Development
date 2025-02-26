@@ -1,23 +1,53 @@
 {
   "name": "@willphan1712000/w",
-  "version": "1.0.1",
+  "version": "1.0.8",
   "description": "Full Stack Library",
   "type": "module",
-  "main": "W.ts",
+  "main": "/dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsup"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/willphan1712000/Web-Development.git"
   },
   "keywords": [
-    "Will"
+    "Will",
+    "react",
+    "typescript",
+    "nextjs"
   ],
   "author": "Nha Phan (Will Phan)",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/willphan1712000/Web-Development/issues"
   },
-  "homepage": "https://github.com/willphan1712000/Web-Development#readme"
+  "homepage": "https://github.com/willphan1712000/Web-Development#readme",
+  "dependencies": {
+    "jquery": "^3.7.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/jquery": "^3.5.32",
+    "@types/node": "^22.13.5",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "css-loader": "^7.1.2",
+    "jest": "^29.7.0",
+    "jsdom": "^26.0.0",
+    "sass": "^1.85.1",
+    "sass-loader": "^16.0.5",
+    "style-loader": "^4.0.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.3",
+    "typescript-plugin-css-modules": "^5.1.0",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
+  },
+  "directories": {
+    "test": "test"
+  }
 }

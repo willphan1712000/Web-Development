@@ -9,13 +9,17 @@ import ReactDOM from "react-dom/client";
 import FileType from "./components/upload/filetype";
 import { JSX } from 'react';
 
+// Export WW.ts
+export {$$$} from './WW'
+
 // Export React Components
 export { default as ColorPickerGradient } from './components/colorPicker/ColorPickerGradient';
 export {default as Options} from './components/options/Options';
 export {default as FontType} from './components/options/types/FontType'
 export {default as ColorType} from './components/options/types/ColorType'
 export {default as RangeSlider} from './components/rangeSlider/RangeSlider'
-
+export {default as Select} from './components/select/Select'
+export {default as Button} from './components/button/Button'
 
 // Method overloads
 export function $$(ele1: any): W1;

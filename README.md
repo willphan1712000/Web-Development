@@ -14,16 +14,6 @@
 
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 
-### Note: This library requires users to have jQuery and FrontAwesome CDNs, you can either attach these CNDs to the head of root html location or simply install those from NPM (Node Package Manager)
-
-```html
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script
-  src="https://kit.fontawesome.com/960d33c629.js"
-  crossorigin="anonymous"
-></script>
-```
-
 ## Installation
 
 ### Option 1: Clone this project to your local computer
@@ -40,13 +30,13 @@ import { $$ } from "path/of/your/project/Web-Development/W";
 Run this command in your terminal (note: this assumes you have installed Nodejs)
 
 ```npm
-npm i Will-js
+npm i @willphan1712000/w
 ```
 
-Then import $$ function to every ts files that you want to use Will-js
+Then import $$ function to every ts files that you want to use Will-js as an entry point where you can access every features of the library
 
 ```ts
-import { $$ } from "Will-js";
+import { $$ } from "@willphan1712000/w";
 ```
 
 ## How to use Will-js

@@ -1,4 +1,4 @@
-import { AddIntersectionObserver, Table } from "../../W";
+import { AddIntersectionObserver, Table } from "../..";
 import DataUI from "./DataUI";
 import InputUI from "./InputUI";
 import TableUI from "./TableUI";
