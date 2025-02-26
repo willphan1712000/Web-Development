@@ -1,4 +1,4 @@
-import { $$, AddIntersectionObserver, Table } from "../../W";
+import { $$, AddIntersectionObserver, Table } from "../..";
 import { $$$ } from "../../WW";
 import Response from "../Response";
 import DataUI from "./DataUI";

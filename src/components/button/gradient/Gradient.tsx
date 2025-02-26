@@ -1,6 +1,6 @@
-import React, { MouseEventHandler, useEffect } from 'react'
-import style from './style.module.css'
+import { useEffect } from 'react'
 import { handleButtonContext } from '../Button'
+import style from './style.module.css'
 
 const Gradient = () => {
   const data = handleButtonContext()
