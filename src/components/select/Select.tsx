@@ -37,6 +37,7 @@ export function handleSelectContext() {
  * @param change : state change function
  * @param options : options array
  * @param size : size of select, default is "30"
+ * @param test : color of text, default is white"
  * @returns : Select UI Component
  */
 const Select = ({type = "single", value, change, options, size = "30", text = "#000"}: Props & SelectProps) => {

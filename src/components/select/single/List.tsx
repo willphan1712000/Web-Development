@@ -1,5 +1,6 @@
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { handleSelectContext } from '../Select'
+import styles from './single.module.css'
 
 interface Props {
   open: (e: boolean) => void
@@ -36,12 +37,12 @@ const List = ({open}: Props) => {
   }, [])
 
   return (
-    <div className='flex flex-col border-[1px] justify-center items-center absolute top-[110%] left-0 rounded-[1rem] p-[1rem] w-full max-h-[40rem] overflow-auto' ref={list} style={{borderColor: `${data.text}`}}>
-      <div className='w-full'>
-        <input type="text" className='w-full border-[1px] p-[0.25rem] rounded-[0.5rem] mb-[0.25rem]' placeholder='Search' value={query} onChange={handleSearchChange} style={{borderColor: `${data.text}`}}/>
+    <div className={styles.box4} ref={list} style={{borderColor: `${data.text}`}}>
+      <div className={styles.box5}>
+        <input type="text" className={styles.box6} placeholder='Search' value={query} onChange={handleSearchChange} style={{borderColor: `${data.text}`}}/>
       </div>
       {filteredList.map((option: any) => (
-        <div key={option.value} className='hover:bg-[#f0f0f0] w-full p-1.5 rounded-[10px] cursor-pointer' onClick={() => {
+        <div key={option.value} className={styles.box7} onClick={() => {
           data.change(option.value)
           open(false)
         }}>{option.label}</div>
