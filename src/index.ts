@@ -12,6 +12,9 @@ import { JSX } from 'react';
 // Export WW.ts
 export {$$$} from './WW'
 
+// Import tailwind css
+import './styles/tailwind.css'
+
 // Export React Components
 export { default as ColorPickerGradient } from './components/colorPicker/ColorPickerGradient';
 export {default as Options} from './components/options/Options';

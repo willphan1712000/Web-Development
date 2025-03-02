@@ -3,23 +3,25 @@ import ArrowDown from '../icon/ArrowDown'
 import X from '../icon/X'
 import { handleSelectContext } from '../Select'
 import List from './List'
+import styles from './single.module.css'
 
 const SingleSelect = () => {
   const data = handleSelectContext()
   const [isOpen, setOpen] = useState<boolean>(false)
+  const size = parseInt(data.size!)
 
   return (
     <>
-      <div className='relative aspect-[6]' style={{width: `${data.size}%`, color: `${data.text}`}}>
+      <div className={styles.box3} style={{width: `${size}rem`, color: `${data.text}`}}>
         <div
-          className="p-[3%] flex flex-row border-[1px] justify-between items-center rounded-[1rem] size-full cursor-pointer relative" onClick={() => {
+          className={styles.box1} onClick={() => {
             setOpen(prev => !prev)
           }}
           style={{borderColor: `${data.text}`}}
         >
           <span style={{color: `${data.text}`}}>{data.value}</span>
 
-          <div className='w-[23%] flex row gap-0'>
+          <div className={styles.box2}>
             <X onClick={(e) => {
               e.stopPropagation()
               data.change(undefined)

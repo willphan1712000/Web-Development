@@ -3,24 +3,26 @@ import ArrowDown from '../icon/ArrowDown'
 import X from '../icon/X'
 import { handleSelectContext } from '../Select'
 import List from './List'
+import styles from './multiple.module.css'
 
 const MultiSelect = () => {
   const data = handleSelectContext()
   const [isOpen, setOpen] = useState<boolean>(false)
+  const size = parseInt(data.size!)
 
   return (
     <>
-      <div className={`relative`} style={{width: `${data.size}%`, color: `${data.text}`}}>
+      <div className={styles.box2} style={{width: `${size}rem`, color: `${data.text}`}}>
         <div
-          className="p-[3%] flex flex-row border-[1px] justify-between items-center border-black rounded-[1rem] size-full cursor-pointer relative" onClick={() => {
+          className={styles.box1} onClick={() => {
             setOpen(prev => !prev)
           }}
         >
-          <div className='flex flex-wrap gap-4 flex-[3]'>
+          <div className={styles.box3}>
             {data.value.map((item: any, index: number) => (
-                <div key={index} className='relative'>
-                  <span className='p-1 bg-[#f0f0f0] rounded-md'>{item}</span>
-                  <span className='absolute top-[-1rem] right-[-1rem] w-[2rem]'><X onClick={e => {
+                <div key={index} className={styles.box2}>
+                  <span className={styles.box4}>{item}</span>
+                  <span className={styles.box5}><X onClick={e => {
                     e.stopPropagation()
                     data.change((prev: any[]) => {
                       return [...prev.filter(item_new => item_new !== item)]
@@ -30,7 +32,7 @@ const MultiSelect = () => {
               ))}
           </div>
 
-          <div className='w-[23%] flex flex-1 row gap-0'>
+          <div className={styles.box6}>
             <X onClick={(e) => {
               e.stopPropagation()
               data.change([])
