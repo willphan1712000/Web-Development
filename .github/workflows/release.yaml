@@ -19,20 +19,26 @@ permissions:
   pull-requests: write # allow workflows to modify PR metadata, such as adding labels, comments, and mergeing PRs
 
 jobs:
-  build:
+  Release to NPM:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Nodejs
+        uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
-      - run: npm ci
-      - run: npm run build
-      - run: npm audit signatures
+
+      - name: Run commands
+        run: npm ci
+        run: npm run build
+        run: npm audit signatures
 
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Automatically generated to help authenticate workflow jobs without needing to store a personal access token
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
         run: npm publish --access=public
