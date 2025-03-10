@@ -16,7 +16,7 @@ on:
 permissions:
   contents: read # allow workflows to only (read or write) in the repo
   issues: write # allow workflows to create, edit, and delete issues
-  pull-requrests: write # allow workflows to modify PR metadata, such as adding labels, comments, and mergeing PRs
+  pull-requests: write # allow workflows to modify PR metadata, such as adding labels, comments, and mergeing PRs
 
 jobs:
   build:
