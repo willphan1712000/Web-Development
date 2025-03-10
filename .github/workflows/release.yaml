@@ -31,14 +31,17 @@ jobs:
         with:
           node-version: "lts/*"
 
-      - name: Run commands
+      - name: Install dependencies
         run: npm ci
+
+      - name: Build the package
         run: npm run build
+
+      - name: Verify integrity
         run: npm audit signatures
 
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Automatically generated to help authenticate workflow jobs without needing to store a personal access token
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
-        run: npm publish --access=public
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc && npm publish --access=public
