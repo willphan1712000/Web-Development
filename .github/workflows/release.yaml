@@ -19,7 +19,7 @@ permissions:
   pull-requests: write # allow workflows to modify PR metadata, such as adding labels, comments, and mergeing PRs
 
 jobs:
-  Release to NPM:
+  NPM-Release:
     runs-on: ubuntu-latest
 
     steps:
