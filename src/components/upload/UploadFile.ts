@@ -37,11 +37,19 @@ class UploadFile {
         return fileType.split("/")[0] === validType.split("/")[0]
     }
 
+    private handleClick = (e: any) => {
+        e.stopPropagation();
+        console.log("click input")
+        this.$ele2.click();
+    }
+
     private openFile(): void {
-        this.$ele1.click(e => {
-            e.stopPropagation();
-            this.$ele2.click();
-        });
+        this.$ele1.click(this.handleClick)
+    }
+
+    public cleanup(): void {
+        this.$ele1.off('click', this.handleClick)
+        this.$ele2.remove()
     }
 }
 
