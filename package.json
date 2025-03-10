@@ -1,6 +1,6 @@
 {
   "name": "@willphan1712000/w",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "Full Stack Library",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
