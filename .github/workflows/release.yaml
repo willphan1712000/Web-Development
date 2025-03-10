@@ -14,18 +14,13 @@ on:
       - main
 
 permissions:
-  contents: read
-  issues: write
-  pull-requrest: write
+  contents: read # allow workflows to only (read or write) in the repo
+  issues: write # allow workflows to create, edit, and delete issues
+  pull-requrests: write # allow workflows to modify PR metadata, such as adding labels, comments, and mergeing PRs
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x, 22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
       - uses: actions/checkout@v4
@@ -38,6 +33,6 @@ jobs:
 
       - name: Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Automatically generated to help authenticate workflow jobs without needing to store a personal access token
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npx semantic-release
