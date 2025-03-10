@@ -1,12 +1,11 @@
 {
   "name": "@willphan1712000/w",
-  "version": "1.1.4",
+  "version": "1.1.8",
   "description": "Full Stack Library",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "twb": "tailwindcss -i src/styles/global.css -o src/styles/tailwind.css",
     "build": "tsup"
   },
   "repository": {

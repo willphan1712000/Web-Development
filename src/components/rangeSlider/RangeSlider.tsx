@@ -1,4 +1,5 @@
 import { useState } from "react"
+import styles from './rangeSlider.module.css'
 
 interface Props {
     keyValue: string,
@@ -21,10 +22,10 @@ const RangeSlider = ({keyValue, range, defaultValue, cb}: Props) => {
     }
 
     return (
-        <div id={keyValue} className="h-auto flex flex-1 flex-row items-center justify-center bg-white rounded-[20px] p-[10px] shadow-md z-[1]">
-            <div className="flex flex-row items-center justify-between gap-[10px]">
-                <p className="mr-[10px]">{value}</p>
-                <input id="range" className="h-auto rounded-[20px] outline-none opacity-90 transition-opacity duration-200 border-none" type="range" min={range.min} max={range.max} value={value} onChange={handleChange}/>
+        <div id={keyValue} className={styles.box1}>
+            <div className={styles.box2}>
+                <p className={styles.box3}>{value}</p>
+                <input id="range" className={styles.box4} type="range" min={range.min} max={range.max} value={value} onChange={handleChange}/>
             </div>
         </div>
     )
