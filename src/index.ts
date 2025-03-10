@@ -1,28 +1,22 @@
-// W.js is module created by Will - Thanh Nha Phan - Kennesaw State University
-// This module helps frontend development to be easily deployed
-import $ from 'jquery'
-import SearchUI from "./components/search/SearchUI";
-import Transform from "./components/Transform/Transform";
-import UploadFile from "./components/upload/UploadFile";
-import TextEditor from "./components/textEditor/TextEditor";
-import ReactDOM from "react-dom/client";
-import FileType from "./components/upload/filetype";
+import $ from 'jquery';
 import { JSX } from 'react';
+import ReactDOM from "react-dom/client";
+import SearchUI from "./components/search/SearchUI";
+import TextEditor from "./components/textEditor/TextEditor";
 
 // Export WW.ts
-export {$$$} from './WW'
-
-// Import tailwind css
-import './styles/tailwind.css'
+export { $$$ } from './WW';
 
 // Export React Components
+export { default as Button } from './components/button/Button';
 export { default as ColorPickerGradient } from './components/colorPicker/ColorPickerGradient';
-export {default as Options} from './components/options/Options';
-export {default as FontType} from './components/options/types/FontType'
-export {default as ColorType} from './components/options/types/ColorType'
-export {default as RangeSlider} from './components/rangeSlider/RangeSlider'
-export {default as Select} from './components/select/Select'
-export {default as Button} from './components/button/Button'
+export { default as Options } from './components/options/Options';
+export { default as ColorType } from './components/options/types/ColorType';
+export { default as FontType } from './components/options/types/FontType';
+export { default as RangeSlider } from './components/rangeSlider/RangeSlider';
+export { default as Select } from './components/select/Select';
+export { default as UploadFile } from './components/upload/UploadFile'
+export { default as Transform } from './components/Transform/Transform'
 
 // Method overloads
 export function $$(ele1: any): W1;
@@ -55,10 +49,6 @@ export class W1 {
         return new PassShowHide(this.ele1);
     }
 
-    public transform(): Transform {
-        return new Transform(this.ele1);
-    }
-
     public addSpinner(): Spinner {
         return new Spinner(this.ele1);
     }
@@ -69,10 +59,6 @@ export class W1 {
 
     public textEditor(cb: (e: any) => void) : TextEditor {
         return new TextEditor(this.ele1, cb)
-    }
-
-    public uploadFile(cb: ({e, error}: any) => void, type: FileType): UploadFile {
-        return new UploadFile(this.ele1, cb, type);
     }
 }
 export class W2 {
@@ -101,10 +87,6 @@ export class W2 {
         return new Search(this.ele1, this.ele2);
     }
 
-    public transform(): Transform {
-        return new Transform(this.ele1, this.ele2);
-    }
-
     // reactMounting uses latest React syntax to mount an element to an already defined element
     public reactMounting(): ReactMounting {
         return new ReactMounting(this.ele1, this.ele2)
@@ -120,10 +102,6 @@ export class W3 {
         this.ele1 = ele1;
         this.ele2 = ele2;
         this.ele3 = ele3;
-    }
-
-    public transform(): Transform {
-        return new Transform(this.ele1, this.ele2, this.ele3);
     }
 
     public addIntersectionObserver(): AddIntersectionObserver {

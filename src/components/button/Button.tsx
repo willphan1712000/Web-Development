@@ -1,9 +1,9 @@
-import React, { createContext, MouseEventHandler, useContext } from 'react'
+import { createContext, MouseEventHandler, useContext } from 'react'
 import Gradient from './gradient/Gradient'
 import Solid from './solid/Solid'
 
 interface Props {
-    type?: | "gradient" | "solid"
+    type?: | "gradient" | "solid",
 }
 
 type Data = {
@@ -12,7 +12,8 @@ type Data = {
     main?: string,
     text?: string,
     first?: string,
-    second?: string
+    second?: string,
+    id?: string,
 } | undefined
 
 const ButtonContext = createContext<Data>(undefined)
@@ -38,17 +39,17 @@ export function handleButtonContext() {
  * @param second second color when using gradient button, default is #aa6392
  * @returns button UI component
  */
-const Button = ({type = "solid", onClick, content, main="#111723", first = "#3e8fbc", second = "#aa6392", text = "#fff"} : Props & Data) => {
+const Button = ({type = "solid", onClick, content, main="#111723", first = "#3e8fbc", second = "#aa6392", text = "#fff", id} : Props & Data) => {
     switch(type) {
         case "gradient":
             return (
-                <ButtonContext.Provider value={{content, onClick, main, first, second, text}}>
+                <ButtonContext.Provider value={{content, onClick, main, first, second, text, id}}>
                     <Gradient />
                 </ButtonContext.Provider>
             )
         case "solid":
             return (
-                <ButtonContext.Provider value={{content, onClick, main, first, text}}>
+                <ButtonContext.Provider value={{content, onClick, main, first, text, id}}>
                     <Solid />
                 </ButtonContext.Provider>
             )

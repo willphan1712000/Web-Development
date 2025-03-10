@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { handleButtonContext } from '../Button'
-import style from './style.module.css'
+import style from './gradientstyle.module.css'
 
 const Gradient = () => {
   const data = handleButtonContext()
@@ -11,7 +11,7 @@ const Gradient = () => {
   }, []);
 
   return (
-    <button onClick={data.onClick} className={style.btn}><div style={{backgroundColor: data.main}} className={style.label}><p className={style.p} style={{color: `${data.text}`}}>{data.content}</p></div></button>
+    <button id={data.id} onClick={data.onClick} className={style.btn}><div style={{backgroundColor: data.main}} className={style.label}><p className={style.p} style={{color: `${data.text}`}}>{data.content}</p></div></button>
   )
 }
 

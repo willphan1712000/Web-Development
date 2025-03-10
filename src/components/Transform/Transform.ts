@@ -1,4 +1,5 @@
 import TransformController from "./TransformController";
+import $ from 'jquery'
 
 type Dimension = [
     x: number,
@@ -20,8 +21,8 @@ type Dimension = [
 // <div class="controller"></div> (4)
 
 export default class Transform {
-    private ele1!: HTMLElement; // Main element
-    private ele2!: HTMLElement; // Container for image transformation
+    private ele1!: HTMLElement; // Wrapper
+    private ele2!: HTMLElement; // Frame
 
     private x!: number;
     private y!: number;
@@ -229,6 +230,7 @@ export default class Transform {
             let [,,, w, h] = this.exportData();
     
             const eventMoveHandler = (event: any) => {
+                event.preventDefault()
                 let x = (type === 'desk') ? event.clientX : event.touches[0].clientX
                 let y = (type === 'desk') ? event.clientY : event.touches[0].clientY
                 var posX = initX + (x - mousePressX)
@@ -244,7 +246,7 @@ export default class Transform {
                     window.removeEventListener('mouseup', eventEndHandler);
                 }, false);
             } else {
-                controllerWrapper.addEventListener('touchmove', eventMoveHandler, {'passive': true});
+                controllerWrapper.addEventListener('touchmove', eventMoveHandler, {'passive': false});
                 window.addEventListener('touchend', function eventEndHandler() {
                     controllerWrapper.removeEventListener('touchmove', eventMoveHandler);
                     window.removeEventListener('touchend', eventEndHandler);
@@ -252,7 +254,7 @@ export default class Transform {
             }
         }
         controllerWrapper.addEventListener('mousedown', e => handleDrag(e, 'desk'), false);
-        controllerWrapper.addEventListener('touchstart', e => handleDrag(e, 'touch'), {'passive': true});
+        controllerWrapper.addEventListener('touchstart', e => handleDrag(e, 'touch'), {'passive': false});
         // done drag support
 
         // handle resize
@@ -286,6 +288,7 @@ export default class Transform {
             mousedownCb(event)
             var vectorC = [mousePressX - initX - this.imgFrame.offsetLeft, mousePressY - initY - this.imgFrame.offsetTop]
             const eventMoveHandler = (event: any) => {
+                event.preventDefault()
                 var x = ((type === 'desk') ? event.clientX : event.touches[0].clientX)
                 var y = ((type === 'desk') ? event.clientY : event.touches[0].clientY)
                 var wDiff = x - mousePressX
@@ -350,7 +353,7 @@ export default class Transform {
                     window.removeEventListener('mouseup', eventEndHandler);
                 }, false);
             } else {
-                window.addEventListener('touchmove', eventMoveHandler, {'passive': true});
+                window.addEventListener('touchmove', eventMoveHandler, {'passive': false});
                 window.addEventListener('touchend', function eventEndHandler() {
                     mouseupCb(event)
                     window.removeEventListener('touchmove', eventMoveHandler, false);
@@ -369,10 +372,10 @@ export default class Transform {
         rightBottom.addEventListener('mousedown', e => resizeHandler(e, false, false, true, true, 'desk'));
         leftBottom.addEventListener('mousedown', e => resizeHandler(e, true, false, true, true, 'desk'));
 
-        leftTop.addEventListener('touchstart', e => resizeHandler(e, true, true, true, true, 'touch'), {'passive': true});
-        rightTop.addEventListener('touchstart', e => resizeHandler(e, false, true, true, true, 'touch'), {'passive': true});
-        rightBottom.addEventListener('touchstart', e => resizeHandler(e, false, false, true, true, 'touch'), {'passive': true});
-        leftBottom.addEventListener('touchstart', e => resizeHandler(e, true, false, true, true, 'touch'), {'passive': true});
+        leftTop.addEventListener('touchstart', e => resizeHandler(e, true, true, true, true, 'touch'), {'passive': false});
+        rightTop.addEventListener('touchstart', e => resizeHandler(e, false, true, true, true, 'touch'), {'passive': false});
+        rightBottom.addEventListener('touchstart', e => resizeHandler(e, false, false, true, true, 'touch'), {'passive': false});
+        leftBottom.addEventListener('touchstart', e => resizeHandler(e, true, false, true, true, 'touch'), {'passive': false});
 
         // handle rotation
         var rotate = document.querySelector("." + this.controllerClassName + " .rotate") as HTMLElement;
@@ -394,6 +397,7 @@ export default class Transform {
             const compensation = this.isRotateOffScreen ? 180 : 0
 
             const eventMoveHandler = (event: any) => {
+                event.preventDefault()
                 let x = (type === 'desk') ? event.clientX : event.touches[0].clientX
                 let y = (type === 'desk') ? event.clientY : event.touches[0].clientY
                 var angle = Math.atan2(y - arrowY, x - arrowX) + Math.PI / 2;
@@ -410,7 +414,7 @@ export default class Transform {
                     window.removeEventListener('mouseup', eventEndHandler);
                 }, false);
             } else {
-                window.addEventListener('touchmove', eventMoveHandler, {'passive': true});
+                window.addEventListener('touchmove', eventMoveHandler, {'passive': false});
     
                 window.addEventListener('touchend', function eventEndHandler() {
                     window.removeEventListener('touchmove', eventMoveHandler, false);
@@ -419,7 +423,7 @@ export default class Transform {
             }
         }
         rotate.addEventListener('mousedown', e => handleRotate(e, 'desk'), false);
-        rotate.addEventListener('touchstart', e => handleRotate(e, 'touch'), {'passive': true});
+        rotate.addEventListener('touchstart', e => handleRotate(e, 'touch'), {'passive': false});
 
         this.reset()
         return this

@@ -1,10 +1,11 @@
 import FileType from "./filetype";
+import $ from 'jquery'
 
-export default class UploadFile {
+class UploadFile {
     private $ele1!: JQuery<HTMLElement>; // upload button
     private $ele2!: JQuery<HTMLElement>; // input tag
 
-    constructor(ele1: string, cb: ({e, error}: {e: string, error: boolean}) => void, type: FileType) {
+    constructor(ele1: HTMLElement, cb: ({e, error}: {e: string, error: boolean}) => void, type: FileType) {
         this.$ele1 = $(ele1);
         this.$ele1.after(`<input type="file" hidden accept="${type}">`);
         this.$ele2 = this.$ele1.siblings('input');
@@ -43,3 +44,5 @@ export default class UploadFile {
         });
     }
 }
+
+export default UploadFile
