@@ -6,3 +6,8 @@
 
 tsconfig.json
 tsup.config.ts
+postcss.config.js
+
+/.github
+
+.DS_Store

@@ -1,5 +1,5 @@
+import $ from 'jquery';
 import FileType from "./filetype";
-import $ from 'jquery'
 
 class UploadFile {
     private $ele1!: JQuery<HTMLElement>; // upload button
@@ -7,8 +7,16 @@ class UploadFile {
 
     constructor(ele1: HTMLElement, cb: ({e, error}: {e: string, error: boolean}) => void, type: FileType) {
         this.$ele1 = $(ele1);
-        this.$ele1.after(`<input type="file" hidden accept="${type}">`);
-        this.$ele2 = this.$ele1.siblings('input');
+
+        const inputElement = document.createElement("input")
+        inputElement.id = 'hello'
+        inputElement.type = 'file'
+        inputElement.style.display = 'none'
+        inputElement.accept = type
+
+        this.$ele1.after(inputElement);
+
+        this.$ele2 = $(inputElement)
         this.openFile();
 
         this.$ele2.on("input", e => {
@@ -39,7 +47,6 @@ class UploadFile {
 
     private handleClick = (e: any) => {
         e.stopPropagation();
-        console.log("click input")
         this.$ele2.click();
     }
 
