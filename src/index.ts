@@ -18,6 +18,9 @@ export { default as Select } from './components/select/Select';
 export { default as UploadFile } from './components/upload/UploadFile'
 export { default as Transform } from './components/Transform/Transform'
 
+// Export Usability components
+export { default as useIntersectionObserver } from './usability/intersection';
+
 // Method overloads
 export function $$(ele1: any): W1;
 export function $$(ele1: any, ele2: any): W2;
@@ -103,10 +106,6 @@ export class W3 {
         this.ele2 = ele2;
         this.ele3 = ele3;
     }
-
-    public addIntersectionObserver(): AddIntersectionObserver {
-        return new AddIntersectionObserver(this.ele1, this.ele2, this.ele3);
-    }
     
     public toggle(): Toggle {
         return new Toggle(this.ele1, this.ele2, this.ele3);
@@ -144,47 +143,6 @@ class ReactMounting {
             throw new Error("The element React components will be mounted on is not found");
         }
         (ReactDOM.createRoot(parentElement).render(this.jsx))
-    }
-}
-
-export class AddIntersectionObserver extends W3 {
-    private observer: any;
-    private target: HTMLElement;
-    private count: number;
-
-    constructor(target: string, options: Object, cb: () => void) {
-        super(target, options, cb);
-
-        this.target = document.querySelector(this.ele1);
-
-        this.observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                this.ele3(entry.isIntersecting, this.count);
-            })
-        }, this.ele2)
-        this.count = 0;
-    }
-
-    public observe() : this {
-        this.observer.observe(this.target);
-        return this;
-    }
-
-    public unobserve() : this {
-        this.observer.unobserve(this.target);
-        return this;
-    }
-
-    public increaseCount() : void {
-        this.count++;
-    }
-
-    public resetCount(): void {
-        this.count = 0;
-    }
-
-    public getCount() : number {
-        return this.count;
     }
 }
 
